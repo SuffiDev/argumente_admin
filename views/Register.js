@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import axios from 'axios'
 import {
         View,
         Text, 
@@ -7,27 +8,80 @@ import {
         TextInput,
         Image,
         Linking,
-        Button,
+        Alert,
+        ToastAndroid,
         TouchableOpacity
     } from 'react-native'
-
+const initialState = {nome:'', sobrenome: '', usuario:'', senha: '', email: '', codigoAcesso: '', idade:'', escolaridade: '', cidade: '', estado: ''}
 export default class Login extends Component {
+    state = {
+        ...initialState
+    }
+    save = async () => {
+        let jsonEnvio = this.state
+        let boolCampos = false;
+        if( this.state.nome === '' || this.state.sobreNome === '' || this.state.usuario === '' || this.state.senha === '' || this.state.email === '' || this.state.codigoAcesso === ''){
+            boolCampos = true;
+        }
+
+        if(boolCampos == true){
+            Alert.alert( 'Erro ao registrar-se','Preencha todos os campos corretamente!',[{text: 'Voltar', onPress: () => {}}])
+        }else{
+            try{
+                let retornoReq = await axios.post('http://192.168.0.29:3000/register',{                   
+                    nome: jsonEnvio.nome,
+                    sobreNome: jsonEnvio.sobreNome,
+                    usuario: jsonEnvio.usuario,
+                    senha: jsonEnvio.senha,
+                    email: jsonEnvio.email,
+                    codigoAcesso: jsonEnvio.codigoAcesso,
+                    escolaridade: jsonEnvio.escolaridade,
+                    cidade: jsonEnvio.cidade,
+                    estado: jsonEnvio.estado,
+                }, (err, data) => {
+                    console.log(err)
+                    console.log(data)
+                }).then(data => {
+                    let retorno = data.data
+                    console.log(retorno['status'])
+                    switch(retorno['status']) {
+                        case 'ok':
+                            ToastAndroid.show('registrado com sucesso!', ToastAndroid.LONG);
+                            this.props.navigation.navigate('Login')
+                            break;
+                        case 'erro':
+                            Alert.alert( 'Erro ao registrar-se','Ocorreu um erro ao se registrar, tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
+                            break;
+                        case 'erro_code':
+                            Alert.alert( 'Erro ao registrar-se','O Codigo preenchido está incorreto. Verifique e tente novamente!',[{text: 'Voltar', onPress: () => {}}])
+                            break;
+                        default:
+                            Alert.alert( 'Sucesso!','Registrado com sucesso!',[{text: 'Voltar', onPress: () => {}}])
+                            break;
+                    }
+                })
+            }catch(err){
+                console.log(err)
+            }
+            
+        }
+    }
     render() {
         return(
             <ImageBackground source={require('../assets/imgs/login.jpg')} style={styles.imageLogin}>
                 <Image source={require('../assets/imgs/logo_argumente.png')} style={styles.logo}/> 
                 <View style={styles.content} >                       
-                    <TextInput placeholder="Nome" style={styles.textFields} />          
-                    <TextInput placeholder="Sobrenome" style={styles.textFields}/>
-                    <TextInput placeholder="Usuario (Login)" style={styles.textFields}/>
-                    <TextInput placeholder="Senha" style={styles.textFields}/>
-                    <TextInput placeholder="E-Mail" style={styles.textFields}/>
-                    <TextInput placeholder="Código de acesso" style={styles.textFields}/>
+                    <TextInput placeholder="Nome" style={styles.textFields} onChangeText={nome => this.setState({nome})}/>          
+                    <TextInput placeholder="Sobrenome" style={styles.textFields} onChangeText={sobreNome => this.setState({sobreNome})}/>
+                    <TextInput placeholder="Usuario (Login)" style={styles.textFields} onChangeText={usuario => this.setState({usuario})}/>
+                    <TextInput placeholder="Senha" style={styles.textFields} onChangeText={senha => this.setState({senha})}/>
+                    <TextInput placeholder="E-Mail" style={styles.textFields} onChangeText={email => this.setState({email})}/>
+                    <TextInput placeholder="Código de acesso" style={styles.textFields} onChangeText={codigoAcesso => this.setState({codigoAcesso})}/>
                     <Text style={styles.link}
-                        onPress={() => Linking.openURL('http://google.com')}>
+                        onPress={() => this.props.navigation.navigate('Login')}>
                         Já possui Registro? Faça o Login!
                     </Text>
-                    <TouchableOpacity style={styles.buttons}>
+                    <TouchableOpacity style={styles.buttons} onPress={this.save}>
                         <Text style={{fontSize: 20, color: '#FFF', fontFamily: 'Lato'}}> Registre-se </Text>
                     </TouchableOpacity>
                 </View>        

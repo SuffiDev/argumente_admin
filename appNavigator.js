@@ -95,7 +95,7 @@ const menuNavigator = createDrawerNavigator(menuRoutes, menuConfig)
   };
 
 const mainNavigator = createSwitchNavigator(mainRoutes,  {
-    initialRouteName: 'Index'
+    initialRouteName: 'Login'
 })
 
 
