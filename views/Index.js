@@ -3,20 +3,30 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {
         View,
         Text, 
-        ImageBackground, 
         StyleSheet,
-        TextInput,
-        Image,
-        Linking,
-        Button,
-        TouchableOpacity
+        TouchableOpacity,
+        Alert
     } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage'
 
 export default class Index extends Component {
+    onLoad = async () => {
+        try {
+            const verificaPerfil = await AsyncStorage.getItem('@perfilCompleto')
+            const teste = await AsyncStorage.getItem('@idAluno')
+            console.log(teste)
+            Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.navigate('Perfil')}])
+          } catch (error) {
+            // Error saving data
+          }
+        
+    }
     render() {
+
+        {this.onLoad()}
         return(
             <View style={styles.content} >  
-                <View style={styles.header}>
+                <View style={styles.header} onLoad>
                     <View style={styles.iconStart}>
                         <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="bars" size={30} color='#FFF'  /> 
@@ -136,8 +146,7 @@ const styles = StyleSheet.create({
         height: 40
     },
     textButton:{ // Texto dos botões que vão ficar no corpo da tela
-        color: 'black',
-        
+        color: 'black',        
         fontSize: 20
     }
     

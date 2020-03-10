@@ -9,34 +9,47 @@ import {
         Image,
         Alert,
         ToastAndroid,
-        TouchableOpacity
+        TouchableOpacity        
     } from 'react-native'
 import commonStyles from './commonStyles'
+import AsyncStorage from '@react-native-community/async-storage'
 const initialState = {usuario: '', senha: ''}
 export default class Login extends Component {
     state = {
         ...initialState
     }
+    //Salva a sessão e redireciona para o Index 
+    newSession = async (dados_retorno) => {
+        ToastAndroid.show('Login efetuado com sucesso!', ToastAndroid.LONG);
+        await AsyncStorage.setItem('@dadosLogin', JSON.stringify(dados_retorno));
+        this.props.navigation.navigate('Index')
+    }
 
+    //Função do login
     login = async () => {
         let jsonEnvio = this.state
         if(this.state.usuario == "" || this.state.senha == ""){
             Alert.alert( 'Erro ao logar','Preencha o usuario e senha corretamente!',[{text: 'Voltar', onPress: () => {}}])
         }else{
             try{
-                let retornoReq = await axios.post('http://192.168.0.29:3000/login',{                   
+                let retornoReq = await axios.post('http://192.168.0.22:3000/login',{                   
                     usuario: jsonEnvio.usuario,
                     senha: jsonEnvio.senha,
                 }, (err, data) => {
                     console.log(err)
                     console.log(data)
-                }).then(data => {
+                }).then(data => {                    
                     let retorno = data.data
-                    console.log(retorno['status'])
                     switch(retorno['status']) {
                         case 'ok':
-                            ToastAndroid.show('Login efetuado com sucesso!', ToastAndroid.LONG);
-                            this.props.navigation.navigate('Index')
+                            console.log(retorno['desc'])
+                            setaSessao(checaNullos(retorno['desc']),retorno['desc'][0]).then((data) =>{
+                                if(data == 'ok'){
+                                    this.props.navigation.navigate('Index')
+                                }else{
+                                    Alert.alert( 'Erro ao logar','Erro ao logar. Tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
+                                }
+                            })                            
                             break;
                         case 'erro':
                             Alert.alert( 'Erro ao logar','Erro ao logar. Tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
@@ -44,18 +57,18 @@ export default class Login extends Component {
                     }
                 })
             }catch(err){
+                console.log(err)
                 Alert.alert( 'Erro ao logar','Erro ao logar. Tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
             }
         }
-
     }
     render() {
         return(
             <ImageBackground source={require('../assets/imgs/login.jpg')} style={styles.imageLogin}>
-                    <Image source={require('../assets/imgs/logo_argumente.png')} style={styles.logo}/> 
+                <Image source={require('../assets/imgs/logo_argumente.png')} style={styles.logo}/> 
                 <View style={styles.content} >                       
                     <TextInput placeholder="Usuario" style={styles.textFields}  onChangeText={usuario => this.setState({usuario})}/>          
-                    <TextInput placeholder="Senha" style={styles.textFields}  onChangeText={senha => this.setState({senha})}/>
+                    <TextInput placeholder="Senha" secureTextEntry={true} style={styles.textFields}  onChangeText={senha => this.setState({senha})}/>
                     <Text style={styles.link}
                         onPress={() => this.props.navigation.navigate('Register')}>
                         Novo por aqui? Registre-se!
@@ -108,3 +121,30 @@ const styles = StyleSheet.create({
         marginTop: 20
     }
 })
+
+//Função usada para saber se algum dos dados digitados pelo usuario está vazio
+function checaNullos(jsonAluno){
+    if(jsonAluno['cidade'] == null || jsonAluno['codigo_acesso'] == null || jsonAluno['escolaridade'] == null ||
+       jsonAluno['estado'] == null || jsonAluno['idade'] == null || jsonAluno['nome'] == null ||
+       jsonAluno['senha'] == null || jsonAluno['sobreNome'] == null || jsonAluno['usuario'] == null
+    ){
+        return true
+    }else{
+        return false
+    }
+}
+async function setaSessao(perfilCompleto, dados){
+    try{
+        if( perfilCompleto )
+            await AsyncStorage.setItem('@perfilCompleto', 'sim')
+        else
+            await AsyncStorage.setItem('@perfilCompleto', 'nao')
+        await AsyncStorage.setItem('@idAluno', '"' + dados['id']+ '"')
+        await AsyncStorage.setItem('@nomeAluno', dados['nome'])
+        return 'ok'
+    }catch(err){
+        console.log(err)
+        return err
+    }
+
+}
