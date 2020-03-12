@@ -1,5 +1,7 @@
 import React, {Component, Fragment} from 'react'
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome'
+import AsyncStorage from '@react-native-community/async-storage'
+import axios from 'axios'
 import {
         View,
         Text, 
@@ -10,10 +12,54 @@ import {
         Linking,
         Button,
         TouchableHighlight,
-        TouchableOpacity
+        TouchableOpacity,
+        ToastAndroid,
+        Alert
     } from 'react-native'
-
+const initialState = {comentario:'' }
 export default class Register extends Component {
+    state = {
+        ...initialState
+    }
+    sendMensagem = async () => {
+        try{
+            if(this.verificaCampos()){
+                ToastAndroid.show('Por favor, aguarde...', ToastAndroid.SHORT);
+                const idAluno = await AsyncStorage.getItem('@idAluno')
+                let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
+                await axios.post('http://192.168.0.22:3000/enviaComentario',{           
+                    id: idAlunoInt,
+                    comentario: this.state.comentario
+                }, (err, data) => {
+                    console.log(err)
+                    console.log(data)
+                }).then(data => {
+                    if(data.data['status'] == 'ok'){
+                        Alert.alert( 'Fale Conosco',"Comentario enviado com sucesso!",[{text: 'OK', onPress: () => {}}])
+                    }else{
+                        Alert.alert( 'Fale Conosco',"Erro ao enviar comentario! Tente novamente mais tarde",[{text: 'OK', onPress: () => {}}])
+                    }
+                })
+            }else{
+                Alert.alert( 'Fale Conosco',"Preencha todos os campos!",[{text: 'OK', onPress: () => {}}])
+            }
+        }catch(err){
+            console.log(err)
+            Alert.alert( 'Fale Conosco',"Erro ao enviar comentario! Tente novamente mais tarde",[{text: 'OK', onPress: () => {}}])
+        }
+    }
+    verificaCampos = () => {
+        try{
+            if( this.state.comentario == null ){
+                return false
+            }else{
+                return true
+            }
+
+        }catch(err){
+            Alert.alert( 'Fale Conosco',"Erro ao enviar comentario! Tente novamente mais tarde",[{text: 'OK', onPress: () => {}}])
+        }
+    }
     render() {
         return(
             <View style={styles.content} >  
@@ -35,15 +81,16 @@ export default class Register extends Component {
                 <View style={{marginLeft:30, marginRight: 30, marginTop:20}} > 
                     <TextInput
                         style={{borderColor: '#0066CC', borderWidth: 1, borderRadius:10 }}
+                        onChangeText={(comentario) => this.setState({ comentario })}
                         multiline={true}
                         numberOfLines={12}
                         textAlignVertical = "top"
-                        value={"Escreva seu comentario: "}
+                        placeholder="Escreva seu comentario: "
                         />  
                 </View>
 
                 <View style={{marginLeft:30, marginRight: 30, marginTop:20}} > 
-                    <TouchableOpacity style={styles.content_buttons} onPress={()=>{}}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={this.sendMensagem}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="send" size={30} color='black' />
                             <Text style={styles.textButton} >Enviar Comentario</Text>

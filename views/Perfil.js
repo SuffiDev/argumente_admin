@@ -2,18 +2,31 @@ import React, {Component, Fragment} from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import axios from 'axios'
 import AsyncStorage from '@react-native-community/async-storage'
+import ModalDropdown from 'react-native-modal-dropdown'
 import {
         View,
         Text, 
         StyleSheet,
         TextInput,
-        TouchableOpacity
+        TouchableOpacity,
+        Alert,
+        ToastAndroid
     } from 'react-native'
     const initialState = {nome:'', sobrenome: '', usuario:'', senha: '', email: '', idade:'', escolaridade: '', cidade: '', estado: '', abriu: true}
 export default class Register extends Component {
     state = {
         ...initialState
     }
+    listEscolaridades = [
+        'Fundamental Completo',
+        'Fundamental Incompleto',
+        'Ensino Médio Completo',
+        'Ensino Médio Incompleto',
+        'Ensino Superior Completo',
+        'Ensino Superior Incompleto'
+    ]
+    listEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"]
+    //Função chamada assim que a tela abre
     onLoad = async () => {
         try {
             const idAluno = await AsyncStorage.getItem('@idAluno')
@@ -33,24 +46,89 @@ export default class Register extends Component {
                     this.loadItems(data)
                     
                 })
-          } catch (error) {
-              console.log(error)
-            // Error saving data
-          }
+        } catch (error) {
+            console.log(error)
+        // Error saving data
+        }
         
     }
+    //Função que seta valores para os campos assim que o resultado vem do banco
     loadItems = (data) => {
-        console.log(data.data['desc'][0]['nome'])
+        console.log(data.data['desc'][0]['idade'])
         this.setState({
             nome: this.state.nome + data.data['desc'][0]['nome'], 
             sobrenome: data.data['desc'][0]['sobrenome'], 
             usuario:data.data['desc'][0]['usuario'], 
             senha: data.data['desc'][0]['senha'], 
             email: data.data['desc'][0]['email'], 
-            idade:data.data['desc'][0]['idade'], 
+            idade: data.data['desc'][0]['idade'], 
             escolaridade: data.data['desc'][0]['escolaridade'], 
             cidade: data.data['desc'][0]['cidade'], 
             estado: data.data['desc'][0]['estado']
+        })
+    }
+
+    //Função que salva o perfil
+    savePerfil = async () => {
+        try{
+            console.log(this.verificaCampos())
+            if(this.verificaCampos()){
+                ToastAndroid.show('Por favor, aguarde...', ToastAndroid.SHORT)
+                const idAluno = await AsyncStorage.getItem('@idAluno')
+                let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
+                await axios.post('http://192.168.0.22:3000/salvaPerfil',{           
+                    id: idAlunoInt,
+                    nome: this.state.nome,
+                    sobreNome: this.state.sobrenome,
+                    usuario: this.state.usuario,
+                    senha: this.state.senha,
+                    email: this.state.email,
+                    idade: this.state.idade,
+                    escolaridade: this.state.escolaridade,
+                    cidade: this.state.cidade,
+                    estado: this.state.estado
+                }, (err, data) => {
+                    console.log(err)
+                    console.log(data)
+                }).then(data => {
+                    if(data.data['status'] == 'ok'){
+                        Alert.alert( 'Dados de Perfil',"Dados Salvos com sucesso!",[{text: 'OK', onPress: () => {}}])
+                    }else{
+                        Alert.alert( 'Dados de Perfil',"Erro ao salvar dados! Verifique os campos e tente novamente",[{text: 'OK', onPress: () => {}}])
+                    }
+                })
+            }else{
+                Alert.alert( 'Dados de Perfil',"Preencha todos os campos!",[{text: 'OK', onPress: () => {}}])
+            }
+        }catch(err){
+            Alert.alert( 'Dados de Perfil',"Erro ao salvar dados! Verifique os campos e tente novamente",[{text: 'OK', onPress: () => {}}])
+        }
+        
+    }
+    //Função que verifica se tem algum campo vazio
+    verificaCampos = () => {
+        try{
+            console.log(this.state)
+            if( this.state.nome == null || this.state.sobrenome == null || this.state.usuario == null ||
+            this.state.senha == null || this.state.email == null || this.state.idade == null ||
+            this.state.escolaridade == undefined || this.state.cidade == null || this.state.estado == undefined){
+                return false
+            }else{
+                return true
+            }
+
+        }catch(err){
+            Alert.alert( 'Dados de Perfil',"Erro ao salvar dados! Verifique os campos e tente novamente",[{text: 'OK', onPress: () => {}}])
+        }
+    }
+    updateEstado(estado) {
+        this.setState({
+            estado: this.listEstados[estado]
+        })
+    }
+    updateEscolaridade(escolaridade) {
+        this.setState({
+            escolaridade: this.listEscolaridades[escolaridade]
         })
     }
     render() {
@@ -79,7 +157,7 @@ export default class Register extends Component {
                 </View>
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >Sobrenome: </Text>
-                    <TextInput style={styles.textContent} value={this.state.sobreNome} placeholder="Sobrenome" onChangeText={(sobreNome) => this.setState({ sobreNome })}/>  
+                    <TextInput style={styles.textContent} value={this.state.sobrenome} placeholder="Sobrenome" onChangeText={(sobrenome) => this.setState({ sobrenome })}/>  
                 </View>
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >Usuario: </Text>
@@ -95,11 +173,17 @@ export default class Register extends Component {
                 </View>
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >Idade: </Text>
-                    <TextInput style={styles.textContent} value={this.state.idade} placeholder="Idade" onChangeText={(idade) => this.setState({ idade })}/>  
+                    <TextInput style={styles.textContent} keyboardType='numeric' value={this.state.idade} placeholder="Idade"  onChangeText={(idade) => this.setState({ idade })}/>  
                 </View>
+                
+
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >Escolaridade: </Text>
-                    <TextInput style={styles.textContent} value={this.state.escolaridade} placeholder="Escolaridade" onChangeText={(escolaridade) => this.setState({ escolaridade })}/>  
+                    <ModalDropdown 
+                        style={styles.textDropDown} ref="dropEscolaridade"
+                        textStyle={styles.textDropDownText} 
+                        dropdownStyle={styles.textDropDownRow} 
+                        defaultValue={"Selecione"} options={this.listEscolaridades} onSelect={(escolaridade) => this.updateEscolaridade(escolaridade)}/> 
                 </View>
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >Cidade: </Text>
@@ -107,10 +191,15 @@ export default class Register extends Component {
                 </View>
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >Estado: </Text>
-                    <TextInput style={styles.textContent} value={this.state.estado} placeholder="Estado" onChangeText={(estado) => this.setState({ estado })}/>  
+                    <ModalDropdown 
+                        style={styles.textDropDown} ref="dropEstado"
+                        textStyle={styles.textDropDownText} 
+                        dropdownStyle={styles.textDropDownRow} 
+                        value={this.state.estado} defaultValue={"Selecione"} options={this.listEstados} onSelect={(estado) => this.updateEstado(estado)}/> 
+                     
                 </View>
                 <View style={styles.contentSend}> 
-                    <TouchableOpacity style={styles.sendButton} onPress={()=>{}}>
+                    <TouchableOpacity style={styles.sendButton} onPress={this.savePerfil}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="save" size={30} color='black' />
                             <Text style={styles.textButton} >Salvar Dados</Text>
@@ -183,11 +272,26 @@ const styles = StyleSheet.create({
         color: 'black',
         flex: 1,
         height: 40,
-        paddingLeft:25,
+        paddingLeft:10,
         borderRadius:10,
         borderWidth: 0.1,
         fontSize: 20
     },
+    textDropDown:{
+        color: 'black',
+        paddingLeft:10,
+        width:'100%',
+        fontSize: 10
+    }, 
+    textDropDownText:{
+        color: 'black',
+        fontSize: 20,
+    }, 
+    textDropDownRow:{
+        color: 'black',
+        fontSize: 20,
+        width: 180
+    }, 
     textButton:{ // Texto dos botões que vão ficar no corpo da tela
         color: 'black',
         flex: 1,

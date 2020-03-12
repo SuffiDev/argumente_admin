@@ -28,6 +28,7 @@ export default class Login extends Component {
             Alert.alert( 'Erro ao registrar-se','Preencha todos os campos corretamente!',[{text: 'Voltar', onPress: () => {}}])
         }else{
             try{
+                ToastAndroid.show('Por favor, aguarde...', ToastAndroid.SHORT);
                 let retornoReq = await axios.post('http://192.168.0.29:3000/register',{                   
                     nome: jsonEnvio.nome,
                     sobreNome: jsonEnvio.sobreNome,

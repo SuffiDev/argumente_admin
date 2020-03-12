@@ -32,6 +32,7 @@ export default class Login extends Component {
             Alert.alert( 'Erro ao logar','Preencha o usuario e senha corretamente!',[{text: 'Voltar', onPress: () => {}}])
         }else{
             try{
+                ToastAndroid.show('Por favor, aguarde...', ToastAndroid.SHORT);
                 let retornoReq = await axios.post('http://192.168.0.22:3000/login',{                   
                     usuario: jsonEnvio.usuario,
                     senha: jsonEnvio.senha,

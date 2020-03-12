@@ -1,5 +1,6 @@
 import React, {Component, Fragment} from 'react'
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome'
+import axios from 'axios'
 import {
         View,
         Text, 
@@ -12,10 +13,21 @@ import AsyncStorage from '@react-native-community/async-storage'
 export default class Index extends Component {
     onLoad = async () => {
         try {
-            const verificaPerfil = await AsyncStorage.getItem('@perfilCompleto')
-            const teste = await AsyncStorage.getItem('@idAluno')
-            console.log(teste)
-            Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.navigate('Perfil')}])
+            const idAluno = await AsyncStorage.getItem('@idAluno')
+            let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
+            await axios.post('http://192.168.0.29:3000/pos_login',{
+                id: idAlunoInt
+            }, (err, data) => {
+                console.log(err)
+                console.log(data)
+            }).then(data => {
+                let retorno = data.data
+                if(data.data['status'] == 'erro_campos'){
+                    Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.navigate('Perfil')}])
+                }
+
+            })
+            
           } catch (error) {
             // Error saving data
           }
