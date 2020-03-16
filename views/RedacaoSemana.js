@@ -6,22 +6,20 @@ import ImagePicker from 'react-native-image-picker'
 import {
         View,
         Text, 
-        ImageBackground, 
         StyleSheet,
-        TextInput,
         Image,
         Linking,
-        Button,
-        TouchableHighlight,
-        TouchableOpacity
+        TouchableOpacity,
+        Alert,
+        ToastAndroid
     } from 'react-native'
-    const initialState = {abriu: true, semana: '', mes: '', ano: '', apoioPdf: '', apoioWeb: '', apoioYoutube: '', tema: '', previewImg: require('../assets/imgs/icon_no_photo.png'),caminhoImg: ''}
+    const initialState = {abriu: true, semana: '', mes: '', ano: '', apoioPdf: '', apoioWeb: '', apoioYoutube: '', tema: '', previewImg: require('../assets/imgs/icon_no_photo.png'),caminhoImg: '',idtema:''}
     const options = {
         quality       : 1,
         mediaType    : "photo",
         cameraType  : "back",
         allowsEditing : true,
-        noData          : true,
+        noData          : false,
 
       storageOptions: {
         skipBackup: true,
@@ -49,7 +47,8 @@ export default class Register extends Component {
             ano: data.data['desc'][0]['ano'],
             apoioPdf: data.data['desc'][0]['apoio_pdf'],
             apoioWeb: data.data['desc'][0]['apoio_web'],
-            apoioYoutube: data.data['desc'][0]['apoio_video']
+            apoioYoutube: data.data['desc'][0]['apoio_video'],
+            idTema: data.data['desc'][0]['id']
         })
     }
     getRedacao = async () => {
@@ -79,14 +78,46 @@ export default class Register extends Component {
     openCamera = () => {
         ImagePicker.launchCamera(options, (response) => {
             const source = { uri: 'file://' +response.path }
-            this.setState({ previewImg: {uri: 'file://' + response.path }, caminhoImg: response.path });
+            this.setState({ previewImg: {uri: 'file://' + response.path }, caminhoImg: response.data });
         });
     }
     openGallery = () => {
         ImagePicker.launchImageLibrary(options, (response) => {
+            console.log(response.data)
             const source = { uri: 'file://' +response.path }
-            this.setState({ previewImg: {uri: 'file://' + response.path }, caminhoImg: response.path });
+            this.setState({ previewImg: {uri: 'file://' + response.path }, caminhoImg: response.data });
           });
+    }
+    sendRedacao = async () => {
+        try {
+            const idAluno = await AsyncStorage.getItem('@idAluno')
+            let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
+            ToastAndroid.show('Por favor, aguarde! Isto pode demorar alguns segundos...', ToastAndroid.LONG)
+            await axios.post('http://192.168.0.22:3000/send_redacao',{                   
+                    idAluno: idAlunoInt,                   
+                    imgPhoto: this.state.caminhoImg,
+                    idTema: this.state.idTema
+                }, (err, data) => {
+                    console.log(err)
+                    console.log(data)
+                }).then(data => {
+                    let retorno = data.data
+                    switch(retorno['status']) {
+                        case 'ok':
+                            Alert.alert( 'Sucesso','Redação enviada com sucesso! Em breve um professor irá corrigi-la',[{text: 'Voltar', onPress: () => {}}])
+                            break
+                        case 'erro':
+                            Alert.alert( 'ERRO','Ocorreu um ao erro enviar sua redação! tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
+                            break
+                        default:
+                            Alert.alert( 'ERRO','Ocorreu um ao erro enviar sua redação! tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
+                            break
+                    }
+                })
+        } catch (error) {
+            console.log(error)
+        // Error saving data
+        }
     }
     render() {
         if(this.state.abriu){
@@ -171,7 +202,7 @@ export default class Register extends Component {
 
 
                 <View style={styles.buttonSend}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={()=>{}}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={this.sendRedacao}>
                         <View style={styles.headerSend}>
                             <Icon style={styles.iconStart} name="send" size={30} color='black' />
                             <Text style={styles.textSend} >Enviar Redação</Text>

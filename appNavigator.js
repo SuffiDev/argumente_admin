@@ -8,6 +8,8 @@ import Login from './views/Login'
 import Perfil from './views/Perfil'
 import RedacaoSemana from './views/RedacaoSemana'
 import Register from './views/Register'
+import RedacoesFinalizadas from './views/RedacoesFinalizadas'
+import RedacoesNaoCorrigidas from './views/RedacoesNaoCorrigidas'
 
 import Menu from './views/Menu'
 
@@ -36,10 +38,10 @@ const menuRoutes = {
         }
     },
     Faleconosco: {
-        name: 'Faleconosco',
+        name: 'Fale Conosco',
         screen: props => <Faleconosco title='Faleconosco' {...props} />,
         navigationOptions:{
-            title: 'Faleconosco'
+            title: 'Fale Conosco'
         }
     },
     Perfil: {
@@ -53,7 +55,21 @@ const menuRoutes = {
         name: 'RedacaoSemana',
         screen: props => <RedacaoSemana title='RedacaoSemana' {...props} />,
         navigationOptions:{
-            title: 'RedacaoSemana'
+            title: 'Enviar Redação'
+        }
+    },
+    RedacoesFinalizadas: {
+        name: 'RedacoesFinalizadas',
+        screen: props => <RedacoesFinalizadas title='RedacoesFinalizadas' {...props} />,
+        navigationOptions:{
+            title: 'Redações Finalizadas'
+        }
+    },
+    RedacoesNaoCorrigidas: {
+        name: 'RedacoesNaoCorrigidas',
+        screen: props => <RedacoesNaoCorrigidas title='RedacoesNaoCorrigidas' {...props} />,
+        navigationOptions:{
+            title: 'Redações Não Corrigidas'
         }
     },
     Login: {

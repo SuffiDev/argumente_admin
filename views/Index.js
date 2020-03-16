@@ -59,16 +59,16 @@ export default class Index extends Component {
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={()=>{}}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacaoSemana')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="book" size={30} color='black' />
-                            <Text style={styles.textButton} >Tema da Semana</Text>
+                            <Text style={styles.textButton} >Nova Redação</Text>
                         </View>
                     </TouchableOpacity>  
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={()=>{}}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacoesFinalizadas')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="clipboard" size={30} color='black' />
                             <Text style={styles.textButton} >Redações Finalizadas</Text>
@@ -77,16 +77,16 @@ export default class Index extends Component {
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={()=>{}}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacoesNaoCorrigidas')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="check" size={30} color='black' />
-                            <Text style={styles.textButton} >Redações Corrigidas</Text>
+                            <Text style={styles.textButton} >Redações Não Corrigidas</Text>
                         </View>
                     </TouchableOpacity>  
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={()=>{}}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('FaleConosco')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="phone" size={30} color='black' />
                             <Text style={styles.textButton} >Fale Conosco</Text>
@@ -95,7 +95,7 @@ export default class Index extends Component {
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={()=>{}}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('Login')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="sign-out" size={40} color='black' />
                             <Text style={styles.textButton} >Sair</Text>
