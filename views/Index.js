@@ -15,7 +15,7 @@ export default class Index extends Component {
         try {
             const idAluno = await AsyncStorage.getItem('@idAluno')
             let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-            await axios.post('http://192.168.0.29:3000/pos_login',{
+            await axios.post('http://178.128.148.63:3000/pos_login',{
                 id: idAlunoInt
             }, (err, data) => {
                 console.log(err)
@@ -39,13 +39,13 @@ export default class Index extends Component {
         return(
             <View style={styles.content} >  
                 <View style={styles.header} onLoad>
-                    <View style={styles.iconStart}>
+                    <View style={styles.iconHeader}>
                         <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="bars" size={30} color='#FFF'  /> 
                         </TouchableOpacity>
                     </View>
                     <View >
-                        <Text style={styles.contentTextHeader} >BEM VINDO, ALUNO!</Text>
+                        <Text style={styles.contentTextHeader} >BEM-VINDO, ALUNO!</Text>
                     </View> 
 
                 </View>
@@ -68,15 +68,6 @@ export default class Index extends Component {
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacoesFinalizadas')}>
-                        <View style={styles.headerButton}>
-                            <Icon style={styles.iconStart} name="clipboard" size={30} color='black' />
-                            <Text style={styles.textButton} >Redações Finalizadas</Text>
-                        </View>
-                    </TouchableOpacity>     
-                </View>
-
-                <View style={styles.content_buttons}> 
                     <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacoesNaoCorrigidas')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="check" size={30} color='black' />
@@ -86,7 +77,16 @@ export default class Index extends Component {
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('FaleConosco')}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacoesFinalizadas')}>
+                        <View style={styles.headerButton}>
+                            <Icon style={styles.iconStart} name="clipboard" size={30} color='black' />
+                            <Text style={styles.textButton} >Redações Finalizadas</Text>
+                        </View>
+                    </TouchableOpacity>     
+                </View>
+
+                <View style={styles.content_buttons}> 
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('Faleconosco')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="phone" size={30} color='black' />
                             <Text style={styles.textButton} >Fale Conosco</Text>
@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
     },
     content_buttons:{ // Style dos botões (TouchableHightlight)
         marginTop: 20,
-        marginLeft: 20,
-        marginRight: 20,
+        marginLeft: 15,
+        marginRight: 15,
         flexDirection:"row",
         alignItems: 'center',
         justifyContent: 'center',
@@ -137,6 +137,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left:0,
         marginLeft:5
+        
+    },
+    iconHeader:{ // Style do Icone que fica no start do Header
+        justifyContent: 'flex-start',
+        position: 'absolute',
+        left:0,
+        marginLeft:15
         
     },
     contentTextHeader:{ // Style do Texto que fica no centro do header

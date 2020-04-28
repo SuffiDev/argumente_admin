@@ -10,6 +10,7 @@ import RedacaoSemana from './views/RedacaoSemana'
 import Register from './views/Register'
 import RedacoesFinalizadas from './views/RedacoesFinalizadas'
 import RedacoesNaoCorrigidas from './views/RedacoesNaoCorrigidas'
+import DetalhesRedacao from './views/DetalhesRedacao'
 
 import Menu from './views/Menu'
 
@@ -58,6 +59,13 @@ const menuRoutes = {
             title: 'Enviar Redação'
         }
     },
+    RedacoesNaoCorrigidas: {
+        name: 'RedacoesNaoCorrigidas',
+        screen: props => <RedacoesNaoCorrigidas title='RedacoesNaoCorrigidas' {...props} />,
+        navigationOptions:{
+            title: 'Redações Não Corrigidas'
+        }
+    },
     RedacoesFinalizadas: {
         name: 'RedacoesFinalizadas',
         screen: props => <RedacoesFinalizadas title='RedacoesFinalizadas' {...props} />,
@@ -65,11 +73,11 @@ const menuRoutes = {
             title: 'Redações Finalizadas'
         }
     },
-    RedacoesNaoCorrigidas: {
-        name: 'RedacoesNaoCorrigidas',
-        screen: props => <RedacoesNaoCorrigidas title='RedacoesNaoCorrigidas' {...props} />,
-        navigationOptions:{
-            title: 'Redações Não Corrigidas'
+    DetalhesRedacao: {
+        name: 'DetalhesRedacao',
+        screen: props => <DetalhesRedacao title='DetalhesRedacao' {...props} />,
+        navigationOptions:{            
+            drawerLabel: () => null
         }
     },
     Login: {

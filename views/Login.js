@@ -33,7 +33,7 @@ export default class Login extends Component {
         }else{
             try{
                 ToastAndroid.show('Por favor, aguarde...', ToastAndroid.SHORT);
-                let retornoReq = await axios.post('http://192.168.0.22:3000/login',{                   
+                let retornoReq = await axios.post('http://178.128.148.63:3000/login',{                   
                     usuario: jsonEnvio.usuario,
                     senha: jsonEnvio.senha,
                 }, (err, data) => {

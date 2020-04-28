@@ -13,7 +13,7 @@ import {
         Alert,
         ToastAndroid
     } from 'react-native'
-    const initialState = {abriu: true, semana: '', mes: '', ano: '', apoioPdf: '', apoioWeb: '', apoioYoutube: '', tema: '', previewImg: require('../assets/imgs/icon_no_photo.png'),caminhoImg: '',idtema:''}
+    const initialState = {achouTema: false,abriu: true, semana: '', mes: '', ano: '', apoioPdf: '', apoioWeb: '', apoioYoutube: '', tema: '', previewImg: require('../assets/imgs/icon_no_photo.png'),caminhoImg: '',idtema:''}
     const options = {
         quality       : 1,
         mediaType    : "photo",
@@ -57,7 +57,7 @@ export default class Register extends Component {
             let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
             console.log(idAlunoInt)
             console.log(typeof parseInt(idAluno));
-            await axios.post('http://192.168.0.22:3000/get_tema',{                   
+            await axios.post('http://178.128.148.63:3000/get_tema',{                   
                     id: idAlunoInt,
                 }, (err, data) => {
                     console.log(err)
@@ -66,7 +66,13 @@ export default class Register extends Component {
                     this.setState({abriu:false})
                     console.log('entrou')
                     console.log(data.data['desc'])
-                    this.loadItems(data)
+                    if(data.data['desc'].length == 0){
+                        this.setState({achouTema:false})
+                        Alert.alert( 'Redação','Não foi possível encontrar nenhum Tema. Tente novamente mais tarde ou no proximo Dia',[{text: 'Voltar', onPress: () => {}}])
+                    }else{
+                        this.setState({achouTema:true})
+                        this.loadItems(data)
+                    }
                     
                 })
         } catch (error) {
@@ -88,23 +94,32 @@ export default class Register extends Component {
             this.setState({ previewImg: {uri: 'file://' + response.path }, caminhoImg: response.data });
           });
     }
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+           this.setState({...initialState});
+        });
+    }
     sendRedacao = async () => {
         try {
-            const idAluno = await AsyncStorage.getItem('@idAluno')
-            let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-            ToastAndroid.show('Por favor, aguarde! Isto pode demorar alguns segundos...', ToastAndroid.LONG)
-            await axios.post('http://192.168.0.22:3000/send_redacao',{                   
-                    idAluno: idAlunoInt,                   
-                    imgPhoto: this.state.caminhoImg,
-                    idTema: this.state.idTema
-                }, (err, data) => {
-                    console.log(err)
-                    console.log(data)
+            console.log('tema estado: ' + this.state.achouTema)
+            if(!this.state.achouTema){
+                Alert.alert( 'Redação','Não foi possível encontrar nenhum Tema. Tente novamente mais tarde ou no proximo Dia',[{text: 'Voltar', onPress: () => {}}])
+            }else{
+                const idAluno = await AsyncStorage.getItem('@idAluno')
+                let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
+                ToastAndroid.show('Por favor, aguarde! Isto pode demorar alguns segundos...', ToastAndroid.LONG)
+                await axios.post('http://178.128.148.63:3000/send_redacao',{                   
+                        idAluno: idAlunoInt,                   
+                        imgPhoto: this.state.caminhoImg,
+                        idTema: this.state.idTema
+                    }, (err, data) => {
+                        console.log(err)
+                        console.log(data)
                 }).then(data => {
                     let retorno = data.data
                     switch(retorno['status']) {
                         case 'ok':
-                            Alert.alert( 'Sucesso','Redação enviada com sucesso! Em breve um professor irá corrigi-la',[{text: 'Voltar', onPress: () => {}}])
+                            Alert.alert( 'Sucesso','Redação enviada com sucesso! Em breve um professor irá corrigi-la',[{text: 'Voltar', onPress: () => this.props.navigation.navigate("Index")}])
                             break
                         case 'erro':
                             Alert.alert( 'ERRO','Ocorreu um ao erro enviar sua redação! tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
@@ -114,6 +129,8 @@ export default class Register extends Component {
                             break
                     }
                 })
+            }
+            
         } catch (error) {
             console.log(error)
         // Error saving data
@@ -127,7 +144,7 @@ export default class Register extends Component {
             <View style={styles.content} >  
                 <View style={styles.header}>
 
-                    <View style={styles.iconStart}>
+                    <View style={styles.iconHeader}>
                         <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="bars" size={30} color='#FFF'  /> 
                         </TouchableOpacity>
@@ -144,12 +161,15 @@ export default class Register extends Component {
                 <View style={styles.content_buttons}> 
 
                     <TouchableOpacity onPress={this.openPDF}>
-                        <View>
+                        <View style={{flexDirection:"row"}}>
+                            <View style={{flex:2,}}>
                             <Text style={styles.textButton}> 
                                 Texto de apoio (PDF): 
                             </Text>  
+                            </View>
+                            <View style={{flex:1,}}>
                                 <Image style={styles.imgIcon} source={require('../assets/imgs/icon_pdf.png')} />
-
+                            </View>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -157,12 +177,15 @@ export default class Register extends Component {
                 <View style={styles.content_buttons}> 
 
                     <TouchableOpacity onPress={this.openWeb}>
-                        <View>
+                        <View style={{flexDirection:"row"}}>
+                            <View style={{flex:2,}}>
                             <Text style={styles.textButton}> 
                                 Texto de apoio (WEB): 
                             </Text>  
+                            </View>
+                            <View style={{flex:1,}}>
                                 <Image style={styles.imgIcon} source={require('../assets/imgs/icon_web.png')} />
-
+                            </View>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -170,25 +193,33 @@ export default class Register extends Component {
                 <View style={styles.content_buttons}> 
 
                     <TouchableOpacity onPress={this.openYoutube}>
-                        <View>
-                            <Text style={styles.textButton}> 
-                                Video de Apoio: 
-                            </Text>  
+                        <View style={{flexDirection:"row"}}>
+                            <View style={{flex:2,}}>
+                                <Text style={styles.textButton}> 
+                                    Video de Apoio: 
+                                </Text>  
+                            </View>
+                            <View style={{flex:1,}}>
                                 <Image style={styles.imgIcon} source={require('../assets/imgs/icon_video.png')} />
-
+                            </View>
                         </View>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.contentImages}> 
                     
-                        <View>
-                            <TouchableOpacity style={styles.imgIconLeft} onPress={this.openGallery}>
-                                    <Image style={{width: 100, height: '100%'}} source={require('../assets/imgs/icon_gallery.png')} />
-                            </TouchableOpacity>
-                            <TouchableOpacity   style={styles.imgIconRight}  onPress={this.openCamera}>
-                                    <Image style={{width: 100, height: '100%'}} source={require('../assets/imgs/icon_camera.png')} />
-                            </TouchableOpacity>
+                        
+                        <View style={{flexDirection:"row"}}>
+                            <View style={{flex:1,}}>
+                                <TouchableOpacity style={styles.imgIconLeft} onPress={this.openGallery}>
+                                        <Image style={{width: 100, height: '100%'}} source={require('../assets/imgs/icon_gallery.png')} />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{flex:1,}}>
+                                <TouchableOpacity   style={styles.imgIconRight}  onPress={this.openCamera}>
+                                        <Image style={{width: 100, height: '100%'}} source={require('../assets/imgs/icon_camera.png')} />
+                                </TouchableOpacity>
+                            </View>
 
                         </View>
                     
@@ -244,11 +275,6 @@ const styles = StyleSheet.create({
         alignSelf:'center',
         fontSize:20,
         fontFamily: "Arial",
-    },
-    textButton:{ // Texto dos botões que vão ficar no corpo da tela
-        color: 'black',
-        marginLeft:40,
-        fontSize: 20
     },
     textTema:{ // Texto dos botões que vão ficar no corpo da tela
         color: 'black',
@@ -315,26 +341,34 @@ const styles = StyleSheet.create({
     },
     imgIcon:{
         justifyContent: 'flex-end',
-        left:0,
-        position: 'absolute',
-        marginLeft:20,
-        width: '100%',
         height: 30,
-        resizeMode: 'contain'
+        width:30,
+    },
+    textButton:{ // Texto dos botões que vão ficar no corpo da tela
+        color: 'black',
+        justifyContent:'flex-start',
+        width: 260,
+        marginLeft: 20,
+        fontSize: 20
     },
     imgIconLeft:{
         justifyContent: 'flex-start',
-        left:0,
-        position: 'absolute',
         height: 80,
-        resizeMode: 'contain'
+        marginLeft: 20,
     },
     imgIconRight:{
         justifyContent: 'flex-end',
         right:0,
         height: 80,
-        marginLeft:120,
-        resizeMode: 'contain'
-    }
+        resizeMode: 'contain',
+        marginLeft: 20,
+    },
+    iconHeader:{ // Style do Icone que fica no start do Header
+        justifyContent: 'flex-start',
+        position: 'absolute',
+        left:0,
+        marginLeft:15
+        
+    },
     
 })

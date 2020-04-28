@@ -33,7 +33,7 @@ export default class Register extends Component {
             let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
             console.log(idAlunoInt)
             console.log(typeof parseInt(idAluno));
-            let retornoReq = await axios.post('http://192.168.0.22:3000/get_aluno',{                   
+            let retornoReq = await axios.post('http://178.128.148.63:3000/get_aluno',{                   
                     id: idAlunoInt,
                 }, (err, data) => {
                     console.log(err)
@@ -138,7 +138,7 @@ export default class Register extends Component {
         return(
             <View style={styles.content} >  
                 <View style={styles.header}>
-                    <View style={styles.iconStart}>
+                    <View style={styles.iconHeader}>
                         <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="bars" size={30} color='#FFF'  /> 
                         </TouchableOpacity>
@@ -336,6 +336,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left:0,
         marginLeft:5
+        
+    },
+    iconHeader:{ // Style do Icone que fica no start do Header
+        justifyContent: 'flex-start',
+        position: 'absolute',
+        left:0,
+        marginLeft:15
         
     },
     

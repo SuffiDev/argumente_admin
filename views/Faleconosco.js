@@ -27,7 +27,7 @@ export default class Register extends Component {
                 ToastAndroid.show('Por favor, aguarde...', ToastAndroid.SHORT);
                 const idAluno = await AsyncStorage.getItem('@idAluno')
                 let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-                await axios.post('http://192.168.0.22:3000/enviaComentario',{           
+                await axios.post('http://178.128.148.63:3000/enviaComentario',{           
                     id: idAlunoInt,
                     comentario: this.state.comentario
                 }, (err, data) => {
@@ -48,6 +48,11 @@ export default class Register extends Component {
             Alert.alert( 'Fale Conosco',"Erro ao enviar comentario! Tente novamente mais tarde",[{text: 'OK', onPress: () => {}}])
         }
     }
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+          this.setState({...initialState})
+        });
+    }
     verificaCampos = () => {
         try{
             if( this.state.comentario == null ){
@@ -64,7 +69,7 @@ export default class Register extends Component {
         return(
             <View style={styles.content} >  
                 <View style={styles.header}>
-                    <View style={styles.iconStart}>
+                    <View style={styles.iconHeader}>
                         <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="bars" size={30} color='#FFF'  /> 
                         </TouchableOpacity>
@@ -160,6 +165,13 @@ const styles = StyleSheet.create({
     },
     paddingTop:{ // Texto dos botões que vão ficar no corpo da tela
         marginTop: 40
-    }
+    },
+    iconHeader:{ // Style do Icone que fica no start do Header
+        justifyContent: 'flex-start',
+        position: 'absolute',
+        left:0,
+        marginLeft:15
+        
+    },
     
 })

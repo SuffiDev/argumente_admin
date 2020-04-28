@@ -14,7 +14,7 @@ import {
     } from 'react-native'
 const initialState = {registros: [],abriu: true}
 
-function Item({ title, id }) {
+function Item({ title, id, navigate }) {
     return (
         <View >
             <TouchableOpacity style={{        
@@ -26,7 +26,8 @@ function Item({ title, id }) {
             alignItems: 'center',
             justifyContent: 'center',
             height: 40
-        }}>
+        }}onPress={() => Alert.alert( 'Redação','Deseja excluir esta redação?',[
+            {text: 'Excluir', onPress:() => navigate.excluirRedacao(id)},{text: 'Cancelar', onPress:() => {}}])}>
                 <Icon style={styles.iconStart} name="check" size={30} color='black' />
                 <Text style={{
                     color: 'black',
@@ -43,12 +44,35 @@ export default class Register extends Component {
     atualizaStatus = () => {
         this.setState({abriu:false})
     }
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+          this.getRedacoes();
+        });
+    }
+    excluirRedacao = async (id) => {
+        try {
+            await axios.post('http://178.128.148.63:3000/deletaRedacao',{  
+                    id:id 
+                }, (err, data) => {
+                }).then(data => {
+                    console.log(data.data['desc'])
+                    if(data.data['status'] == 'ok'){
+                        Alert.alert( 'Excluir Redação','Excluido com sucesso!',[{text: 'OK', onPress: () => {}}])
+                        this.getRedacoes()
+                    }
+                    
+                })
+        } catch (error) {
+            console.log(error)
+        // Error saving data
+        }
+    }
     getRedacoes = async () => {
         try {
             this.atualizaStatus()
             const idAluno = await AsyncStorage.getItem('@idAluno')
             let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-            await axios.post('http://192.168.0.22:3000/get_redacao',{                   
+            await axios.post('http://178.128.148.63:3000/get_redacao',{                   
                     idAluno: idAlunoInt,              
                     tipoRedacao: 'naoCorrigida'
                 }, (err, data) => {
@@ -60,7 +84,7 @@ export default class Register extends Component {
                     console.log(data.data['desc'])
                     for(let i =0; i< data.data['desc'].length; i++){
                         currentItem = data.data['desc'][i]
-                        listItems.push({id: currentItem['id'], title: currentItem['tema']})
+                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema']})
                     }
                     console.log(JSON.stringify(listItems))
                     this.setState({registros:listItems})
@@ -97,7 +121,7 @@ export default class Register extends Component {
                 }}>
                     <FlatList
                         data={this.state.registros}
-                        renderItem={({ item }) => <Item style={{borderWidth: 1}}title={item.title} id={item.id} />}
+                        renderItem={({ item }) => <Item style={{borderWidth: 1}}title={item.title} id={item.id} navigate={this} />}
                         keyExtractor={item => item.id}
                     />
                 </View>

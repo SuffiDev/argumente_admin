@@ -14,7 +14,7 @@ import {
     } from 'react-native'
 const initialState = {registros: [],abriu: true}
 
-function Item({ title, id }) {
+function Item({ title, id, navigate }) {
     return (
         <View >
             <TouchableOpacity style={{        
@@ -26,7 +26,9 @@ function Item({ title, id }) {
             alignItems: 'center',
             justifyContent: 'center',
             height: 40
-        }}>
+        }}onPress={() => Alert.alert( 'Redação','O que deseja fazer?',[
+            {text: 'Visualizar correção', onPress: () => navigate.editarRedacao(id)},
+            {text: 'Excluir', onPress:() => navigate.excluirRedacao(id)}])}>
                 <Icon style={styles.iconStart} name="check" size={30} color='black' />
                 <Text style={{
                     color: 'black',
@@ -43,12 +45,39 @@ export default class Register extends Component {
     atualizaStatus = () => {
         this.setState({abriu:false})
     }
+    editarRedacao = async (id) => {
+        console.log('id' + id)
+        this.props.navigation.navigate('DetalhesRedacao',{'id':id})
+    }
+    excluirRedacao = async (id) => {
+        try {
+            await axios.post('http://178.128.148.63:3000/deletaRedacao',{  
+                    id:id 
+                }, (err, data) => {
+                }).then(data => {
+                    console.log(data.data['desc'])
+                    if(data.data['status'] == 'ok'){
+                        Alert.alert( 'Excluir Redação','Excluido com sucesso!',[{text: 'OK', onPress: () => {}}])
+                        this.getRedacoes()
+                    }
+                    
+                })
+        } catch (error) {
+            console.log(error)
+        // Error saving data
+        }
+    }
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+          this.getRedacoes();
+        });
+    }
     getRedacoes = async () => {
         try {
             this.atualizaStatus()
             const idAluno = await AsyncStorage.getItem('@idAluno')
             let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-            await axios.post('http://192.168.0.22:3000/get_redacao',{                   
+            await axios.post('http://178.128.148.63:3000/get_redacao',{                   
                     idAluno: idAlunoInt,              
                     tipoRedacao: 'finalizada'
                 }, (err, data) => {
@@ -60,7 +89,7 @@ export default class Register extends Component {
                     console.log(data.data['desc'])
                     for(let i =0; i< data.data['desc'].length; i++){
                         currentItem = data.data['desc'][i]
-                        listItems.push({id: currentItem['id'], title: currentItem['tema']})
+                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema']})
                     }
                     console.log(JSON.stringify(listItems))
                     this.setState({registros:listItems})
@@ -79,7 +108,7 @@ export default class Register extends Component {
         return(
             <View style={styles.content} >  
                 <View style={styles.header}>
-                    <View style={styles.iconStart}>
+                    <View style={styles.iconHeader}>
                         <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="bars" size={30} color='#FFF'  /> 
                         </TouchableOpacity>
@@ -97,7 +126,7 @@ export default class Register extends Component {
                 }}>
                     <FlatList
                         data={this.state.registros}
-                        renderItem={({ item }) => <Item style={{borderWidth: 1}}title={item.title} id={item.id} />}
+                        renderItem={({ item }) => <Item style={{borderWidth: 1}}title={item.title} id={item.id} navigate={this} />}
                         keyExtractor={item => item.id}
                     />
                 </View>
@@ -127,6 +156,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left:0,
         marginLeft:5
+        
+    },
+    iconHeader:{ // Style do Icone que fica no start do Header
+        justifyContent: 'flex-start',
+        position: 'absolute',
+        left:0,
+        marginLeft:15
         
     },
 

@@ -29,7 +29,7 @@ export default class Login extends Component {
         }else{
             try{
                 ToastAndroid.show('Por favor, aguarde...', ToastAndroid.SHORT);
-                let retornoReq = await axios.post('http://192.168.0.29:3000/register',{                   
+                let retornoReq = await axios.post('http://178.128.148.63:3000/register',{                   
                     nome: jsonEnvio.nome,
                     sobreNome: jsonEnvio.sobreNome,
                     usuario: jsonEnvio.usuario,
