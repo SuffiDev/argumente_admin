@@ -54,6 +54,10 @@ export default class Register extends Component {
           this.setState({...initialState});
         });
     }
+    handleBackButtonClick() {
+        this.props.navigation.navigate('RedacoesFinalizadas')
+        return true;
+    }
     render() {
         if(this.state.abriu){
             this.onLoad()

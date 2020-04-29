@@ -126,6 +126,10 @@ export default class Register extends Component {
             estado: this.listEstados[estado]
         })
     }
+    handleBackButtonClick() {
+        this.props.navigation.navigate('Index')
+        return true;
+    }
     updateEscolaridade(escolaridade) {
         this.setState({
             escolaridade: this.listEscolaridades[escolaridade]

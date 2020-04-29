@@ -72,6 +72,10 @@ export default class Register extends Component {
           this.getRedacoes();
         });
     }
+    handleBackButtonClick() {
+        this.props.navigation.navigate('Index')
+        return true;
+    }
     getRedacoes = async () => {
         try {
             this.atualizaStatus()

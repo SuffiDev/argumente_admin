@@ -23,7 +23,7 @@ export default class Index extends Component {
             }).then(data => {
                 let retorno = data.data
                 if(data.data['status'] == 'erro_campos'){
-                    Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.navigate('Perfil')}])
+                    Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.navigate('Perfil')},{text: 'Mais tarde', onPress: () => {}}])
                 }
 
             })

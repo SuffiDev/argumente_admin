@@ -99,6 +99,10 @@ export default class Register extends Component {
            this.setState({...initialState});
         });
     }
+    handleBackButtonClick() {
+        this.props.navigation.navigate('Index')
+        return true;
+    }
     sendRedacao = async () => {
         try {
             console.log('tema estado: ' + this.state.achouTema)

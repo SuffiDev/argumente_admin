@@ -49,6 +49,10 @@ export default class Register extends Component {
           this.getRedacoes();
         });
     }
+    handleBackButtonClick() {
+        this.props.navigation.navigate('Index')
+        return true;
+    }
     excluirRedacao = async (id) => {
         try {
             await axios.post('http://178.128.148.63:3000/deletaRedacao',{  
@@ -103,7 +107,7 @@ export default class Register extends Component {
         return(
             <View style={styles.content} >  
                 <View style={styles.header}>
-                    <View style={styles.iconStart}>
+                    <View style={styles.iconHeader}>
                         <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
                             <Icon name="bars" size={30} color='#FFF'  /> 
                         </TouchableOpacity>
@@ -151,6 +155,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left:0,
         marginLeft:5
+        
+    },
+    iconHeader:{ // Style do Icone que fica no start do Header
+        justifyContent: 'flex-start',
+        position: 'absolute',
+        left:0,
+        marginLeft:15
         
     },
 
