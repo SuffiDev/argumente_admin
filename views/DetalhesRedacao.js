@@ -2,6 +2,7 @@ import React, {Component, Fragment} from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import axios from 'axios'
 import AsyncStorage from '@react-native-community/async-storage'
+import RNFS from 'react-native-fs'
 import ModalDropdown from 'react-native-modal-dropdown'
 import {
         View,
@@ -9,10 +10,12 @@ import {
         StyleSheet,
         TextInput,
         TouchableOpacity,
+        Image,
+        BackHandler,
         Alert,
         ToastAndroid
     } from 'react-native'
-    const initialState = {id_redacao:'', redacao: '', resposta:'', dataCorrecao: '', abriu: true}
+    const initialState = {screen: 'DetalheRedacao',id_redacao:'', redacao: '', resposta:'', dataCorrecao: '', abriu: true}
 export default class Register extends Component {
     state = {
         ...initialState
@@ -42,21 +45,24 @@ export default class Register extends Component {
     }
     //Função que seta valores para os campos assim que o resultado vem do banco
     loadItems = (data) => {
-        console.log(data.data['desc'][0]['observacao'])
-        this.setState({
-            dataCorrecao: 'Data de correção: ' + data.data['desc'][0]['data'], 
-            redacao: data.data['desc'][0]['tema'], 
-            resposta:data.data['desc'][0]['observacao'], 
+        console.log(data.data['desc']['observacao'])
+        let randomNumber = Math.random() * (99 - 1) + 1
+        let randomName = 'imagem'+randomNumber
+        const imagePath = `${RNFS.TemporaryDirectoryPath}/${randomName}.png`
+        let dadosImg = data.data['desc']['caminho_imagem']
+        RNFS.writeFile(imagePath, dadosImg, 'base64').then(() => {
+            this.setState({
+                dataCorrecao: 'Data de correção: ' + data.data['desc']['data'], 
+                redacao: data.data['desc']['tema'], 
+                resposta:data.data['desc']['observacao'], 
+                previewImg: {uri: 'file://' + imagePath }
+            })
         })
     }
     componentDidMount () {
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
           this.setState({...initialState});
         });
-    }
-    handleBackButtonClick() {
-        this.props.navigation.navigate('RedacoesFinalizadas')
-        return true;
     }
     render() {
         if(this.state.abriu){
@@ -71,11 +77,14 @@ export default class Register extends Component {
                         </TouchableOpacity>
                     </View>
                     <View >      
-                        <Text style={styles.contentTextHeader} >{this.state.redacao}</Text>
+                        <Text style={styles.contentTextHeader} >DETALHES DA REDAÇÃO</Text>
                     </View>
 
                 </View>
                 <View  style={styles.paddingTop}>
+                <View style={styles.contentButtons}> 
+                    <Text style={styles.labelButton} >{this.state.redacao} </Text>
+                </View>
 
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >{this.state.dataCorrecao} </Text>
@@ -87,6 +96,12 @@ export default class Register extends Component {
                 </View>
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >{this.state.resposta}</Text>            
+                </View>
+
+                <View style={styles.showImagem}> 
+                    <TouchableOpacity style={{height:150}}   onPress={()=>{}}>
+                        <Image style={{width:150, height:150}}source={this.state.previewImg} />
+                    </TouchableOpacity>
                 </View>
                 <View
                     style={{
@@ -250,6 +265,14 @@ const styles = StyleSheet.create({
         left:0,
         marginLeft:15
         
+    },
+    showImagem:{
+        marginTop: 10,
+        flexDirection:"row",
+        alignItems: 'center',
+        justifyContent: 'center',
+        resizeMode: 'contain'
+
     },
     
 })

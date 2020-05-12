@@ -9,10 +9,11 @@ import {
         StyleSheet,
         TouchableOpacity,
         Alert,
+        BackHandler,
         ToastAndroid,
         FlatList
     } from 'react-native'
-const initialState = {registros: [],abriu: true}
+const initialState = {screen: 'RedacoesNaoCorrigidas',registros: [],abriu: true}
 
 function Item({ title, id, navigate }) {
     return (
@@ -31,7 +32,7 @@ function Item({ title, id, navigate }) {
                 <Icon style={styles.iconStart} name="check" size={30} color='black' />
                 <Text style={{
                     color: 'black',
-                    fontSize: 20
+                    fontSize: 15
                 }}>{title}</Text>
             </TouchableOpacity>
         </View>
@@ -48,10 +49,6 @@ export default class Register extends Component {
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
           this.getRedacoes();
         });
-    }
-    handleBackButtonClick() {
-        this.props.navigation.navigate('Index')
-        return true;
     }
     excluirRedacao = async (id) => {
         try {
@@ -88,7 +85,7 @@ export default class Register extends Component {
                     console.log(data.data['desc'])
                     for(let i =0; i< data.data['desc'].length; i++){
                         currentItem = data.data['desc'][i]
-                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema']})
+                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema'] + ' - ' + currentItem['data']})
                     }
                     console.log(JSON.stringify(listItems))
                     this.setState({registros:listItems})
@@ -113,7 +110,7 @@ export default class Register extends Component {
                         </TouchableOpacity>
                     </View>
                     <View >
-                        <Text style={styles.contentTextHeader} >REDAÇÕES NÃO CORRIGIDAS</Text>
+                        <Text style={styles.contentTextHeader} >REDAÇÕES ANTERIORES</Text>
                     </View>
 
                 </View>
@@ -163,6 +160,14 @@ const styles = StyleSheet.create({
         left:0,
         marginLeft:15
         
+    },
+    contentTextHeader:{ // Style do Texto que fica no centro do header
+        justifyContent: 'center',
+        color:'white',
+        textAlign:'center',
+        alignSelf:'center',
+        fontSize:20,
+        fontFamily: "Arial",
     },
 
 })

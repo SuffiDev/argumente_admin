@@ -8,12 +8,13 @@ import {
         TextInput,
         Image,
         Alert,
+        BackHandler,
         ToastAndroid,
         TouchableOpacity        
     } from 'react-native'
 import commonStyles from './commonStyles'
 import AsyncStorage from '@react-native-community/async-storage'
-const initialState = {usuario: '', senha: ''}
+const initialState = {screen: 'Login',usuario: '', senha: '',logoPatrocinio:''}
 export default class Login extends Component {
     state = {
         ...initialState
@@ -43,10 +44,12 @@ export default class Login extends Component {
                     let retorno = data.data
                     switch(retorno['status']) {
                         case 'ok':
-                            console.log(retorno['desc'])
-                            setaSessao(checaNullos(retorno['desc']),retorno['desc'][0]).then((data) =>{
+                            console.log('id :' + retorno['desc']['id'])
+                            this.setState({logoPatrocinio:retorno['desc']['caminhoImg']})
+                            setaSessao(checaNullos(retorno['desc']),retorno['desc']).then((data) =>{
                                 if(data == 'ok'){
-                                    this.props.navigation.navigate('Index')
+                                    console.log(this.state.logoPatrocinio.length)
+                                    this.props.navigation.navigate('PosLogin',{'imgPatrocinio':this.state.logoPatrocinio,'nomeArquivo':this.state.usuario})
                                 }else{
                                     Alert.alert( 'Erro ao logar','Erro ao logar. Tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
                                 }

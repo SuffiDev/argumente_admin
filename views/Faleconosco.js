@@ -12,15 +12,13 @@ import {
         Linking,
         Button,
         TouchableHighlight,
+        BackHandler,
         TouchableOpacity,
         ToastAndroid,
         Alert
     } from 'react-native'
-const initialState = {comentario:'' }
+const initialState = {screen: 'FaleConosco',comentario:'' }
 export default class Register extends Component {
-    state = {
-        ...initialState
-    }
     sendMensagem = async () => {
         try{
             if(this.verificaCampos()){
@@ -36,6 +34,7 @@ export default class Register extends Component {
                 }).then(data => {
                     if(data.data['status'] == 'ok'){
                         Alert.alert( 'Fale Conosco',"Comentario enviado com sucesso!",[{text: 'OK', onPress: () => {}}])
+                        this.setState({...initialState})
                     }else{
                         Alert.alert( 'Fale Conosco',"Erro ao enviar comentario! Tente novamente mais tarde",[{text: 'OK', onPress: () => {}}])
                     }
@@ -47,15 +46,6 @@ export default class Register extends Component {
             console.log(err)
             Alert.alert( 'Fale Conosco',"Erro ao enviar comentario! Tente novamente mais tarde",[{text: 'OK', onPress: () => {}}])
         }
-    }
-    componentDidMount () {
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-          this.setState({...initialState})
-        });
-    }
-    handleBackButtonClick() {
-        this.props.navigation.navigate('Index')
-        return true;
     }
     verificaCampos = () => {
         try{
@@ -79,7 +69,7 @@ export default class Register extends Component {
                         </TouchableOpacity>
                     </View>
                     <View >
-                        <Text style={styles.contentTextHeader} >Fale Conosco</Text>
+                        <Text style={styles.contentTextHeader} >FALE CONOSCO</Text>
                     </View>
 
                 </View>

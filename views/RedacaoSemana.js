@@ -10,10 +10,11 @@ import {
         Image,
         Linking,
         TouchableOpacity,
+        BackHandler,
         Alert,
         ToastAndroid
     } from 'react-native'
-    const initialState = {achouTema: false,abriu: true, semana: '', mes: '', ano: '', apoioPdf: '', apoioWeb: '', apoioYoutube: '', tema: '', previewImg: require('../assets/imgs/icon_no_photo.png'),caminhoImg: '',idtema:''}
+    const initialState = {screen: 'RedacaoSemana',achouTema: false,abriu: true, descricao: '', semana: '', mes: '', ano: '', apoioPdf: '', apoioWeb: '', apoioYoutube: '', tema: '', previewImg: require('../assets/imgs/icon_no_photo.png'),caminhoImg: '',idtema:''}
     const options = {
         quality       : 1,
         mediaType    : "photo",
@@ -48,7 +49,8 @@ export default class Register extends Component {
             apoioPdf: data.data['desc'][0]['apoio_pdf'],
             apoioWeb: data.data['desc'][0]['apoio_web'],
             apoioYoutube: data.data['desc'][0]['apoio_video'],
-            idTema: data.data['desc'][0]['id']
+            idTema: data.data['desc'][0]['id'],
+            descricao: data.data['desc'][0]['descricao']
         })
     }
     getRedacao = async () => {
@@ -68,7 +70,7 @@ export default class Register extends Component {
                     console.log(data.data['desc'])
                     if(data.data['desc'].length == 0){
                         this.setState({achouTema:false})
-                        Alert.alert( 'Redação','Não foi possível encontrar nenhum Tema. Tente novamente mais tarde ou no proximo Dia',[{text: 'Voltar', onPress: () => {}}])
+                        Alert.alert( 'Redação','Não foi possível encontrar nenhum Tema. Tente novamente mais tarde ou no proximo Dia',[{text: 'Voltar', onPress: () => this.props.navigation.navigate("Index")}])
                     }else{
                         this.setState({achouTema:true})
                         this.loadItems(data)
@@ -98,10 +100,6 @@ export default class Register extends Component {
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
            this.setState({...initialState});
         });
-    }
-    handleBackButtonClick() {
-        this.props.navigation.navigate('Index')
-        return true;
     }
     sendRedacao = async () => {
         try {
@@ -154,12 +152,15 @@ export default class Register extends Component {
                         </TouchableOpacity>
                     </View>
                     <View >
-                        <Text style={styles.contentTextHeader} >Redação da Semana</Text>
+                        <Text style={styles.contentTextHeader} >REDAÇÃO DA SEMANA</Text>
                     </View>
 
                 </View>
                 <View style={styles.content_buttons_first}> 
                     <Text style={styles.textTema}>Tema: {this.state.tema} </Text>  
+                </View>
+                <View style={styles.content_buttons}> 
+                    <Text style={styles.textButton}>{this.state.descricao} </Text>  
                 </View>
 
                 <View style={styles.content_buttons}> 
@@ -216,12 +217,12 @@ export default class Register extends Component {
                         <View style={{flexDirection:"row"}}>
                             <View style={{flex:1,}}>
                                 <TouchableOpacity style={styles.imgIconLeft} onPress={this.openGallery}>
-                                        <Image style={{width: 100, height: '100%'}} source={require('../assets/imgs/icon_gallery.png')} />
+                                        <Image style={{width: 80, height: '100%'}} source={require('../assets/imgs/icon_gallery.png')} />
                                 </TouchableOpacity>
                             </View>
                             <View style={{flex:1,}}>
                                 <TouchableOpacity   style={styles.imgIconRight}  onPress={this.openCamera}>
-                                        <Image style={{width: 100, height: '100%'}} source={require('../assets/imgs/icon_camera.png')} />
+                                        <Image style={{width: 80, height: '100%'}} source={require('../assets/imgs/icon_camera.png')} />
                                 </TouchableOpacity>
                             </View>
 
@@ -229,8 +230,8 @@ export default class Register extends Component {
                     
                 </View>
                 <View style={styles.showImagem}> 
-                    <TouchableOpacity style={{height:150}}   onPress={()=>{}}>
-                        <Image style={{width:150, height:150}}source={this.state.previewImg} />
+                    <TouchableOpacity style={{height:100}}   onPress={()=>{}}>
+                        <Image style={{width:100, height:100}}source={this.state.previewImg} />
                     </TouchableOpacity>
                 </View>
 
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
     content_buttons:{ // Texto dos botões que vão ficar no corpo da tela
-        marginTop: 20,        
+        marginTop: 15, 
     },
     content_buttons_first:{ // Texto dos botões que vão ficar no corpo da tela
         marginTop: 0,      
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',  
         marginLeft: 20,
-        height:60,
+        marginTop: 10,
         marginRight: 20,
     },
     buttonSend:{
@@ -330,7 +331,7 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
     contentImages:{
-        marginTop: 30,
+        marginTop: 20,
         flexDirection:"row",
         alignItems: 'center',
         justifyContent: 'center',
@@ -345,25 +346,25 @@ const styles = StyleSheet.create({
     },
     imgIcon:{
         justifyContent: 'flex-end',
-        height: 30,
-        width:30,
+        height: 25,
+        width:25,
     },
     textButton:{ // Texto dos botões que vão ficar no corpo da tela
         color: 'black',
         justifyContent:'flex-start',
-        width: 260,
         marginLeft: 20,
-        fontSize: 20
+        fontSize: 15,
+        
     },
     imgIconLeft:{
         justifyContent: 'flex-start',
-        height: 80,
+        height: 60,
         marginLeft: 20,
     },
     imgIconRight:{
         justifyContent: 'flex-end',
         right:0,
-        height: 80,
+        height: 60,
         resizeMode: 'contain',
         marginLeft: 20,
     },

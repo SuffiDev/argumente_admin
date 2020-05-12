@@ -6,11 +6,18 @@ import {
         Text, 
         StyleSheet,
         TouchableOpacity,
+        BackHandler,
         Alert
     } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
+const initialState = {screen: 'Index',index: true}
+    
+
 export default class Index extends Component {
+    state = {
+        ...initialState
+    }
     onLoad = async () => {
         try {
             const idAluno = await AsyncStorage.getItem('@idAluno')
@@ -22,19 +29,15 @@ export default class Index extends Component {
                 console.log(data)
             }).then(data => {
                 let retorno = data.data
-                if(data.data['status'] == 'erro_campos'){
-                    Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.navigate('Perfil')},{text: 'Mais tarde', onPress: () => {}}])
-                }
-
+                //if(data.data['status'] == 'erro_campos'){
+                    //Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.navigate('Perfil')},{text: 'Mais tarde', onPress: () => {}}])
+                //}
             })
-            
-          } catch (error) {
-            // Error saving data
-          }
-        
+        } catch (error) {
+        // Error saving data
+        }
     }
     render() {
-
         {this.onLoad()}
         return(
             <View style={styles.content} >  
@@ -62,7 +65,7 @@ export default class Index extends Component {
                     <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacaoSemana')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="book" size={30} color='black' />
-                            <Text style={styles.textButton} >Nova Redação</Text>
+                            <Text style={styles.textButton} >Redação da Semana</Text>
                         </View>
                     </TouchableOpacity>  
                 </View>
@@ -71,7 +74,7 @@ export default class Index extends Component {
                     <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacoesNaoCorrigidas')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="check" size={30} color='black' />
-                            <Text style={styles.textButton} >Redações Não Corrigidas</Text>
+                            <Text style={styles.textButton} >Redações Anteriores</Text>
                         </View>
                     </TouchableOpacity>  
                 </View>
@@ -80,7 +83,7 @@ export default class Index extends Component {
                     <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacoesFinalizadas')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="clipboard" size={30} color='black' />
-                            <Text style={styles.textButton} >Redações Finalizadas</Text>
+                            <Text style={styles.textButton} >Redações Corrigidas</Text>
                         </View>
                     </TouchableOpacity>     
                 </View>

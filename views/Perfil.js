@@ -9,10 +9,11 @@ import {
         StyleSheet,
         TextInput,
         TouchableOpacity,
+        BackHandler,
         Alert,
         ToastAndroid
     } from 'react-native'
-    const initialState = {nome:'', sobrenome: '', usuario:'', senha: '', email: '', idade:'', escolaridade: '', cidade: '', estado: '', abriu: true}
+    const initialState = {screen: 'Perfil',nome:'', sobrenome: '', usuario:'', senha: '', email: '', idade:'', escolaridade: 'Selecione', cidade: '', estado: 'Selecione', abriu: true}
 export default class Register extends Component {
     state = {
         ...initialState
@@ -61,7 +62,7 @@ export default class Register extends Component {
             usuario:data.data['desc'][0]['usuario'], 
             senha: data.data['desc'][0]['senha'], 
             email: data.data['desc'][0]['email'], 
-            idade: data.data['desc'][0]['idade'], 
+            idade: '' + data.data['desc'][0]['idade'], 
             escolaridade: data.data['desc'][0]['escolaridade'], 
             cidade: data.data['desc'][0]['cidade'], 
             estado: data.data['desc'][0]['estado']
@@ -76,10 +77,10 @@ export default class Register extends Component {
                 ToastAndroid.show('Por favor, aguarde...', ToastAndroid.SHORT)
                 const idAluno = await AsyncStorage.getItem('@idAluno')
                 let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-                await axios.post('http://192.168.0.22:3000/salvaPerfil',{           
+                await axios.post('http://178.128.148.63:3000/salvaPerfil',{           
                     id: idAlunoInt,
                     nome: this.state.nome,
-                    sobreNome: this.state.sobrenome,
+                    sobrenome: this.state.sobrenome,
                     usuario: this.state.usuario,
                     senha: this.state.senha,
                     email: this.state.email,
@@ -94,6 +95,7 @@ export default class Register extends Component {
                     if(data.data['status'] == 'ok'){
                         Alert.alert( 'Dados de Perfil',"Dados Salvos com sucesso!",[{text: 'OK', onPress: () => {}}])
                     }else{
+                        console.log(JSON.stringify(data.data))
                         Alert.alert( 'Dados de Perfil',"Erro ao salvar dados! Verifique os campos e tente novamente",[{text: 'OK', onPress: () => {}}])
                     }
                 })
@@ -126,10 +128,6 @@ export default class Register extends Component {
             estado: this.listEstados[estado]
         })
     }
-    handleBackButtonClick() {
-        this.props.navigation.navigate('Index')
-        return true;
-    }
     updateEscolaridade(escolaridade) {
         this.setState({
             escolaridade: this.listEscolaridades[escolaridade]
@@ -148,7 +146,7 @@ export default class Register extends Component {
                         </TouchableOpacity>
                     </View>
                     <View >
-                        <Text style={styles.contentTextHeader} >Seu Perfil</Text>
+                        <Text style={styles.contentTextHeader} >SEU PERFIL</Text>
                     </View>
 
                 </View>
@@ -187,7 +185,8 @@ export default class Register extends Component {
                         style={styles.textDropDown} ref="dropEscolaridade"
                         textStyle={styles.textDropDownText} 
                         dropdownStyle={styles.textDropDownRow} 
-                        defaultValue={"Selecione"} options={this.listEscolaridades} onSelect={(escolaridade) => this.updateEscolaridade(escolaridade)}/> 
+                        value={this.state.escolaridade}
+                        defaultValue={this.state.escolaridade} options={this.listEscolaridades} onSelect={(escolaridade) => this.updateEscolaridade(escolaridade)}/> 
                 </View>
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >Cidade: </Text>
@@ -199,7 +198,7 @@ export default class Register extends Component {
                         style={styles.textDropDown} ref="dropEstado"
                         textStyle={styles.textDropDownText} 
                         dropdownStyle={styles.textDropDownRow} 
-                        value={this.state.estado} defaultValue={"Selecione"} options={this.listEstados} onSelect={(estado) => this.updateEstado(estado)}/> 
+                        value={this.state.estado} defaultValue={this.state.estado} options={this.listEstados} onSelect={(estado) => this.updateEstado(estado)}/> 
                      
                 </View>
                 <View style={styles.contentSend}> 
@@ -279,7 +278,7 @@ const styles = StyleSheet.create({
         paddingLeft:10,
         borderRadius:10,
         borderWidth: 0.1,
-        fontSize: 20
+        fontSize: 15
     },
     textDropDown:{
         color: 'black',
@@ -289,7 +288,7 @@ const styles = StyleSheet.create({
     }, 
     textDropDownText:{
         color: 'black',
-        fontSize: 20,
+        fontSize: 15,
     }, 
     textDropDownRow:{
         color: 'black',

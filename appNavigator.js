@@ -11,6 +11,7 @@ import Register from './views/Register'
 import RedacoesFinalizadas from './views/RedacoesFinalizadas'
 import RedacoesNaoCorrigidas from './views/RedacoesNaoCorrigidas'
 import DetalhesRedacao from './views/DetalhesRedacao'
+import PosLogin from './views/PosLogin'
 
 import Menu from './views/Menu'
 
@@ -80,6 +81,13 @@ const menuRoutes = {
             drawerLabel: () => null
         }
     },
+    PosLogin: {
+        name: 'PosLogin',
+        screen: props => <PosLogin title='PosLogin' {...props} />,
+        navigationOptions:{            
+            drawerLabel: () => null
+        }
+    },
     Login: {
         name: 'Login',
         screen: props => <Login title='Login' {...props} />,
@@ -110,6 +118,10 @@ const menuNavigator = createDrawerNavigator(menuRoutes, menuConfig)
     Register: { 
       name: 'Register',
       screen: Register 
+    },
+    PosLogin: { 
+      name: 'PosLogin',
+      screen: PosLogin 
     },
 
     Index: { 

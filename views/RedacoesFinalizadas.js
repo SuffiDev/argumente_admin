@@ -10,9 +10,10 @@ import {
         TouchableOpacity,
         Alert,
         ToastAndroid,
+        BackHandler,
         FlatList
     } from 'react-native'
-const initialState = {registros: [],abriu: true}
+const initialState = {screen: 'RedacoesFinalizadas',registros: [],abriu: true}
 
 function Item({ title, id, navigate }) {
     return (
@@ -66,15 +67,6 @@ export default class Register extends Component {
             console.log(error)
         // Error saving data
         }
-    }
-    componentDidMount () {
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-          this.getRedacoes();
-        });
-    }
-    handleBackButtonClick() {
-        this.props.navigation.navigate('Index')
-        return true;
     }
     getRedacoes = async () => {
         try {
@@ -168,6 +160,14 @@ const styles = StyleSheet.create({
         left:0,
         marginLeft:15
         
+    },
+    contentTextHeader:{ // Style do Texto que fica no centro do header
+        justifyContent: 'center',
+        color:'white',
+        textAlign:'center',
+        alignSelf:'center',
+        fontSize:20,
+        fontFamily: "Arial",
     },
 
 })

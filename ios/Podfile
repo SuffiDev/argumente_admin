@@ -38,6 +38,10 @@ target 'app_argumente' do
 
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
+  pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
+
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
+
   target 'app_argumenteTests' do
     inherit! :search_paths
     # Pods for testing

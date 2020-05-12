@@ -9,13 +9,19 @@ import {
         Image,
         Linking,
         Alert,
+        BackHandler,
         ToastAndroid,
         TouchableOpacity
     } from 'react-native'
-const initialState = {nome:'', sobrenome: '', usuario:'', senha: '', email: '', codigoAcesso: '', idade:'', escolaridade: '', cidade: '', estado: ''}
+const initialState = {screen: 'Register',index:true, nome:'', sobrenome: '', usuario:'', senha: '', email: '', codigoAcesso: '', idade:'', escolaridade: '', cidade: '', estado: ''}
 export default class Login extends Component {
     state = {
         ...initialState
+    }
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+          this.setState({...initialState});
+        });
     }
     save = async () => {
         let jsonEnvio = this.state
