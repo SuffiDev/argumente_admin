@@ -33,7 +33,7 @@ function Item({ title, id, navigate }) {
                 <Icon style={styles.iconStart} name="check" size={30} color='black' />
                 <Text style={{
                     color: 'black',
-                    fontSize: 20
+                    fontSize: 15
                 }}>{title}</Text>
             </TouchableOpacity>
         </View>
@@ -85,7 +85,7 @@ export default class Register extends Component {
                     console.log(data.data['desc'])
                     for(let i =0; i< data.data['desc'].length; i++){
                         currentItem = data.data['desc'][i]
-                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema']})
+                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema'] + ' - ' + currentItem['data']})
                     }
                     console.log(JSON.stringify(listItems))
                     this.setState({registros:listItems})

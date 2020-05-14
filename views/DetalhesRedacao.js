@@ -15,7 +15,7 @@ import {
         Alert,
         ToastAndroid
     } from 'react-native'
-    const initialState = {screen: 'DetalheRedacao',id_redacao:'', redacao: '', resposta:'', dataCorrecao: '', abriu: true}
+    const initialState = {screen: 'DetalheRedacao',id_redacao:'', redacao: '', resposta:'', dataCorrecao: '', abriu: true, nota: ''}
 export default class Register extends Component {
     state = {
         ...initialState
@@ -24,7 +24,8 @@ export default class Register extends Component {
     onLoad = async () => {
         try {
             let idAlunoInt = this.props.navigation.getParam('id', 0)
-            let retornoReq = await axios.post('http://178.128.148.63:3000/getCorrecao',{                   
+            ToastAndroid.show('Por favor, aguarde! Isto pode demorar alguns segundos...', ToastAndroid.LONG)
+            await axios.post('http://178.128.148.63:3000/getCorrecao',{                   
                     id: idAlunoInt,
                 }, (err, data) => {
                     console.log(err)
@@ -55,6 +56,7 @@ export default class Register extends Component {
                 dataCorrecao: 'Data de correção: ' + data.data['desc']['data'], 
                 redacao: data.data['desc']['tema'], 
                 resposta:data.data['desc']['observacao'], 
+                nota:data.data['desc']['nota'], 
                 previewImg: {uri: 'file://' + imagePath }
             })
         })
@@ -88,6 +90,9 @@ export default class Register extends Component {
 
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >{this.state.dataCorrecao} </Text>
+                </View>
+                <View style={styles.contentButtons}> 
+                    <Text style={styles.labelButton} >Nota: {this.state.nota} </Text>
                 </View>
                 
                 </View>

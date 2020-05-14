@@ -27,7 +27,8 @@ export default class Register extends Component {
                 let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
                 await axios.post('http://178.128.148.63:3000/enviaComentario',{           
                     id: idAlunoInt,
-                    comentario: this.state.comentario
+                    comentario: this.state.comentario,
+                    tipo:'aluno'
                 }, (err, data) => {
                     console.log(err)
                     console.log(data)
