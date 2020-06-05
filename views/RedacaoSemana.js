@@ -3,6 +3,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import axios from 'axios'
 import AsyncStorage from '@react-native-community/async-storage'
 import ImagePicker from 'react-native-image-picker'
+import Loader from './LoadSpinner'
 import {
         View,
         Text, 
@@ -10,11 +11,10 @@ import {
         Image,
         Linking,
         TouchableOpacity,
-        BackHandler,
         Alert,
         ToastAndroid
     } from 'react-native'
-    const initialState = {screen: 'RedacaoSemana',achouTema: false,abriu: true, descricao: '', semana: '', mes: '', ano: '', apoioPdf: '', apoioWeb: '', apoioYoutube: '', tema: '', previewImg: require('../assets/imgs/icon_no_photo.png'),caminhoImg: '',idtema:''}
+    const initialState = {loading: false,achouTema: false,abriu: false, descricao: '', semana: '', mes: '', ano: '', apoioPdf: '', apoioWeb: '', apoioYoutube: '', tema: '', previewImg: require('../assets/imgs/icon_no_photo.png'),caminhoImg: '',idtema:''}
     const options = {
         quality       : 1,
         mediaType    : "photo",
@@ -55,6 +55,7 @@ export default class Register extends Component {
     }
     getRedacao = async () => {
         try {
+            this.setState({loading: true})
             const idAluno = await AsyncStorage.getItem('@idAluno')
             let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
             console.log(idAlunoInt)
@@ -65,7 +66,7 @@ export default class Register extends Component {
                     console.log(err)
                     console.log(data)
                 }).then(data => {
-                    this.setState({abriu:false})
+                    this.setState({abriu:true, loading: false})
                     console.log('entrou')
                     console.log(data.data['desc'])
                     if(data.data['desc'].length == 0){
@@ -79,6 +80,7 @@ export default class Register extends Component {
                 })
         } catch (error) {
             console.log(error)
+            this.setState({loading: false})
         // Error saving data
         }
         
@@ -96,54 +98,62 @@ export default class Register extends Component {
             this.setState({ previewImg: {uri: 'file://' + response.path }, caminhoImg: response.data });
           });
     }
-    componentDidMount () {
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-           this.setState({...initialState});
-        });
-    }
     sendRedacao = async () => {
         try {
-            console.log('tema estado: ' + this.state.achouTema)
             if(!this.state.achouTema){
                 Alert.alert( 'Redação','Não foi possível encontrar nenhum Tema. Tente novamente mais tarde ou no proximo Dia',[{text: 'Voltar', onPress: () => {}}])
             }else{
-                const idAluno = await AsyncStorage.getItem('@idAluno')
-                let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-                ToastAndroid.show('Por favor, aguarde! Isto pode demorar alguns segundos...', ToastAndroid.LONG)
-                await axios.post('http://178.128.148.63:3000/send_redacao',{                   
-                        idAluno: idAlunoInt,                   
-                        imgPhoto: this.state.caminhoImg,
-                        idTema: this.state.idTema
-                    }, (err, data) => {
-                        console.log(err)
-                        console.log(data)
-                }).then(data => {
-                    let retorno = data.data
-                    switch(retorno['status']) {
-                        case 'ok':
-                            Alert.alert( 'Sucesso','Redação enviada com sucesso! Em breve um professor irá corrigi-la',[{text: 'Voltar', onPress: () => this.props.navigation.navigate("Index")}])
-                            break
-                        case 'erro':
-                            Alert.alert( 'ERRO','Ocorreu um ao erro enviar sua redação! tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
-                            break
-                        default:
-                            Alert.alert( 'ERRO','Ocorreu um ao erro enviar sua redação! tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
-                            break
-                    }
-                })
+                try{
+                    this.setState({loading:true})
+                    const idAluno = await AsyncStorage.getItem('@idAluno')
+                    let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
+                    ToastAndroid.show('Por favor, aguarde! Isto pode demorar alguns segundos...', ToastAndroid.LONG)
+                    await axios.post('http://178.128.148.63:3000/send_redacao',{                   
+                            idAluno: idAlunoInt,                   
+                            imgPhoto: this.state.caminhoImg,
+                            idTema: this.state.idTema
+                        }, (err, data) => {
+                            console.log(err)
+                            console.log(data)
+                    }).then(data => {
+                        this.setState({loading:false})
+                        let retorno = data.data
+                        switch(retorno['status']) {
+                            case 'ok':
+                                Alert.alert( 'Sucesso','Redação enviada com sucesso! Em breve um professor irá corrigi-la',[{text: 'Voltar', onPress: () => this.props.navigation.push("Index")}])
+                                break
+                            case 'erro':
+                                Alert.alert( 'ERRO','Ocorreu um ao erro enviar sua redação! tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
+                                break
+                            default:
+                                Alert.alert( 'ERRO','Ocorreu um ao erro enviar sua redação! tente novamente mais tarde!',[{text: 'Voltar', onPress: () => {}}])
+                                break
+                        }
+                    })
+                }catch(error){
+                    Alert.alert( 'Redação','Ocorreu um erro ao enviar a Redação. Detalhes:' + error,[{text: 'Voltar', onPress: () => {}}])
+                    console.log(error)
+                    this.setState({loading:false})
+                }
             }
             
         } catch (error) {
             console.log(error)
+            this.setState({loading:false})
         // Error saving data
         }
     }
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+            if(!this.state.abriu)
+                this.getRedacao()
+        });
+    }
     render() {
-        if(this.state.abriu){
-            this.getRedacao()
-        }
         return(
             <View style={styles.content} >  
+                <Loader
+                    loading={this.state.loading} />
                 <View style={styles.header}>
 
                     <View style={styles.iconHeader}>

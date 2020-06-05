@@ -42,6 +42,14 @@ target 'app_argumente' do
 
   pod 'RNFS', :path => '../node_modules/react-native-fs'
 
+  pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
+
+  pod 'RNScreens', :path => '../node_modules/react-native-screens'
+
+  pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
+
+  pod 'RNSoundPlayer', :path => '../node_modules/react-native-sound-player'
+
   target 'app_argumenteTests' do
     inherit! :search_paths
     # Pods for testing

@@ -190,6 +190,10 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-sound-player')
+    implementation project(':react-native-safe-area-context')
+    implementation project(':react-native-screens')
+    implementation project(':react-native-reanimated')
     implementation project(':react-native-fs')
     implementation project(':react-native-splash-screen')
     implementation project(':react-native-gesture-handler')

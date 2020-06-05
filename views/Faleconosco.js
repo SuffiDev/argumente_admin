@@ -19,6 +19,9 @@ import {
     } from 'react-native'
 const initialState = {screen: 'FaleConosco',comentario:'' }
 export default class Register extends Component {
+    state = {
+        ...initialState
+    }
     sendMensagem = async () => {
         try{
             if(this.verificaCampos()){
@@ -34,7 +37,7 @@ export default class Register extends Component {
                     console.log(data)
                 }).then(data => {
                     if(data.data['status'] == 'ok'){
-                        Alert.alert( 'Fale Conosco',"Comentario enviado com sucesso!",[{text: 'OK', onPress: () => {}}])
+                        Alert.alert( 'Fale Conosco',"Comentário enviado com sucesso!",[{text: 'OK', onPress: () => {}}])
                         this.setState({...initialState})
                     }else{
                         Alert.alert( 'Fale Conosco',"Erro ao enviar comentario! Tente novamente mais tarde",[{text: 'OK', onPress: () => {}}])
@@ -86,6 +89,7 @@ export default class Register extends Component {
                         numberOfLines={12}
                         textAlignVertical = "top"
                         placeholder="Escreva seu comentario: "
+                        value={this.state.comentario}
                         />  
                 </View>
 

@@ -13,7 +13,7 @@ import {
         ToastAndroid,
         FlatList
     } from 'react-native'
-const initialState = {screen: 'RedacoesNaoCorrigidas',registros: [],abriu: true}
+const initialState = {screen: 'RedacoesNaoCorrigidas',registros: [],abriu: false}
 
 function Item({ title, id, navigate }) {
     return (
@@ -27,8 +27,7 @@ function Item({ title, id, navigate }) {
             alignItems: 'center',
             justifyContent: 'center',
             height: 40
-        }}onPress={() => Alert.alert( 'Redação','Deseja excluir esta redação?',[
-            {text: 'Excluir', onPress:() => navigate.excluirRedacao(id)},{text: 'Cancelar', onPress:() => {}}])}>
+        }}onPress={() => navigate.novaRedacao(id)}>
                 <Icon style={styles.iconStart} name="check" size={30} color='black' />
                 <Text style={{
                     color: 'black',
@@ -42,27 +41,33 @@ export default class Register extends Component {
     state = {
         ...initialState
     }
-    atualizaStatus = () => {
-        this.setState({abriu:false})
-    }
-    componentDidMount () {
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-          this.getRedacoes();
-        });
-    }
-    excluirRedacao = async (id) => {
+    novaRedacao = async (id) => {
         try {
-            await axios.post('http://178.128.148.63:3000/deletaRedacao',{  
-                    id:id 
-                }, (err, data) => {
-                }).then(data => {
-                    console.log(data.data['desc'])
-                    if(data.data['status'] == 'ok'){
-                        Alert.alert( 'Excluir Redação','Excluido com sucesso!',[{text: 'OK', onPress: () => {}}])
-                        this.getRedacoes()
-                    }
+            const idAluno = await AsyncStorage.getItem('@idAluno')
+            let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
+            await axios.post('http://178.128.148.63:3000/get_dados_tema',{                   
+                idAluno: idAlunoInt,    
+                idTema: id          
+            }).then(data => {
+                console.log('valor do desc: ' + data.data['desc'])
+                if(data.data['desc'] == ""){
+                    console.log('caiu aqui')
+                    this.props.navigation.navigate('NovaRedacao',{'id':id})
+                }
+                else if(data.data['desc'][0]['idCorrecao'] != null)
+                    Alert.alert( 'Redação','Você já enviou uma redação com este tema!',[
+                        {text: 'Visualizar Correção', onPress: () => this.props.navigation.navigate('DetalhesRedacao',{'id':id})},
+                        {text: 'Enviar nova redação', onPress: () => this.props.navigation.navigate('NovaRedacao',{'id':id})},
+                        {text: 'Cancelar', onPress: () => {}}
+                    ])
                     
-                })
+                else
+                    Alert.alert( 'Redação','Você já enviou uma redação com este tema, porém a mesma ainda não foi corrigida!',[
+                        {text: 'Enviar nova redação', onPress: () => this.props.navigation.navigate('NovaRedacao',{'id':id})},
+                        {text: 'Cancelar', onPress: () => {}}
+                    ])
+            })
+        //this.props.navigation.navigate('NovaRedacao',{'id':id})
         } catch (error) {
             console.log(error)
         // Error saving data
@@ -70,22 +75,22 @@ export default class Register extends Component {
     }
     getRedacoes = async () => {
         try {
-            this.atualizaStatus()
             const idAluno = await AsyncStorage.getItem('@idAluno')
             let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-            await axios.post('http://178.128.148.63:3000/get_redacao',{                   
+            await axios.post('http://178.128.148.63:3000/get_temas',{                   
                     idAluno: idAlunoInt,              
                     tipoRedacao: 'naoCorrigida'
                 }, (err, data) => {
                     console.log(err)
                     console.log(data)
                 }).then(data => {
+                    this.setState({abriu:true})
                     let listItems = []
                     let currentItem
                     console.log(data.data['desc'])
                     for(let i =0; i< data.data['desc'].length; i++){
                         currentItem = data.data['desc'][i]
-                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema'] + ' - ' + currentItem['data']})
+                        listItems.push({id: currentItem['id'], title: ' Semana ' + currentItem['semana']})
                     }
                     console.log(JSON.stringify(listItems))
                     this.setState({registros:listItems})
@@ -96,11 +101,13 @@ export default class Register extends Component {
         // Error saving data
         }
     }
-    
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+            if(!this.state.abriu)
+                this.getRedacoes()
+        });
+    }  
     render() {
-        if(this.state.abriu){
-            this.getRedacoes()
-        }
         return(
             <View style={styles.content} >  
                 <View style={styles.header}>

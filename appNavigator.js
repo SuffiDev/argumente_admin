@@ -1,5 +1,7 @@
 import React from 'react'
-import { createAppContainer, createSwitchNavigator, Icon, Text, View  } from 'react-navigation'
+import { View, Text } from 'react-native'
+import { createAppContainer, createSwitchNavigator } from 'react-navigation'
+import { createStackNavigator } from 'react-navigation-stack'
 import { createDrawerNavigator } from 'react-navigation-drawer'
 
 import Index from './views/Index'
@@ -11,128 +13,88 @@ import Register from './views/Register'
 import RedacoesFinalizadas from './views/RedacoesFinalizadas'
 import RedacoesNaoCorrigidas from './views/RedacoesNaoCorrigidas'
 import DetalhesRedacao from './views/DetalhesRedacao'
+import NovaRedacao from './views/NovaRedacao'
 import PosLogin from './views/PosLogin'
-
 import Menu from './views/Menu'
 
 const menuConfig ={
-  initialRouteName: 'Index',
-  contentComponent: Menu,
-  contentOptions: {
-      labelStyle: {
-          fontFamily:'Lato',
-          fontWeight: 'normal',
-          fontSize: 20
-      },
-      activeLabelStyle:{
-          color: '#0066CC',
-          fontWeight: 'bold',
-      }
-  }
+    contentComponent: Menu,
+    contentOptions: {
+        labelStyle: {
+            fontFamily:'Lato',
+            fontWeight: 'normal',
+            fontSize: 20
+        },
+        activeLabelStyle:{
+            color: '#0066CC',
+            fontWeight: 'bold',
+        }
+    }
 }
-const menuRoutes = {  
-    Index: {
-        name: 'Index',
-        screen: props => <Index title='Index' {...props} />,
-        navigationOptions:{
-            title: 'Index'
-                    
-        }
-    },
-    Faleconosco: {
-        name: 'Fale Conosco',
-        screen: props => <Faleconosco title='Faleconosco' {...props} />,
-        navigationOptions:{
-            title: 'Fale Conosco'
-        }
-    },
-    Perfil: {
-        name: 'Perfil',
-        screen: props => <Perfil title='Perfil' {...props} />,
-        navigationOptions:{
-            title: 'Perfil'
-        }
-    },
-    RedacaoSemana: {
-        name: 'RedacaoSemana',
-        screen: props => <RedacaoSemana title='RedacaoSemana' {...props} />,
-        navigationOptions:{
-            title: 'Enviar Redação'
-        }
-    },
-    RedacoesNaoCorrigidas: {
-        name: 'RedacoesNaoCorrigidas',
-        screen: props => <RedacoesNaoCorrigidas title='RedacoesNaoCorrigidas' {...props} />,
-        navigationOptions:{
-            title: 'Redações Não Corrigidas'
-        }
-    },
-    RedacoesFinalizadas: {
-        name: 'RedacoesFinalizadas',
-        screen: props => <RedacoesFinalizadas title='RedacoesFinalizadas' {...props} />,
-        navigationOptions:{
-            title: 'Redações Finalizadas'
-        }
-    },
-    DetalhesRedacao: {
-        name: 'DetalhesRedacao',
-        screen: props => <DetalhesRedacao title='DetalhesRedacao' {...props} />,
-        navigationOptions:{            
-            drawerLabel: () => null
-        }
-    },
-    PosLogin: {
-        name: 'PosLogin',
-        screen: props => <PosLogin title='PosLogin' {...props} />,
-        navigationOptions:{            
-            drawerLabel: () => null
-        }
-    },
-    Login: {
-        name: 'Login',
-        screen: props => <Login title='Login' {...props} />,
-        navigationOptions:{
-            title: 'Logout'
-        }
-    },
 
-}
-const menuNavigator = createDrawerNavigator(menuRoutes, menuConfig)
-  const mainRoutes = {
-    Faleconosco: { 
-      name: 'Faleconosco',
-      screen: Faleconosco 
-      },
-    Login: { 
-      name: 'Login',
-      screen: Login 
-      },
-    Perfil: { 
-      name: 'Perfil',
-      screen: Perfil 
-      },
-    RedacaoSemana: { 
-      name: 'RedacaoSemana',
-      screen: RedacaoSemana 
-      },
-    Register: { 
-      name: 'Register',
-      screen: Register 
-    },
-    PosLogin: { 
-      name: 'PosLogin',
-      screen: PosLogin 
-    },
-
-    Index: { 
-      name: 'Index',
-      screen: menuNavigator 
-      },
-  };
-
-const mainNavigator = createSwitchNavigator(mainRoutes,  {
-    initialRouteName: 'Login'
-})
-
-
-export default createAppContainer(mainNavigator);
+const AppNavigator = createStackNavigator({
+    Login: {screen: Login,  navigationOptions: { header: null }},
+    Index: {screen: Index, navigationOptions: { header: null }},
+    Register: {screen: Register,  navigationOptions: { header: null }},
+    FaleConosco: {screen: Faleconosco, navigationOptions: { header: null }},
+    Perfil: {screen: Perfil, navigationOptions: { header: null }},
+    RedacaoSemana: {screen: RedacaoSemana, navigationOptions: { header: null }},
+    RedacoesFinalizadas: {screen: RedacoesFinalizadas, navigationOptions: { header: null }},
+    RedacoesNaoCorrigidas: {screen: RedacoesNaoCorrigidas, navigationOptions: { header: null }},
+    DetalhesRedacao: {screen: DetalhesRedacao, navigationOptions: { header: null }},
+    NovaRedacao: {screen: NovaRedacao, navigationOptions: { header: null }},
+    PosLogin: {screen: PosLogin, navigationOptions: { header: null }},
+});
+const Nav = createDrawerNavigator({
+    Stack: {screen:AppNavigator,navigationOptions:{
+        drawerLabel: () => null
+    }},
+    Index: {screen:Index,navigationOptions:{
+        title: 'Index'
+    }},
+    Perfil: {screen:Perfil,navigationOptions:{
+        title: 'Perfil'
+    }},
+    FaleConosco: {screen:Faleconosco,navigationOptions:{
+        title: 'Fale Conosco'
+    }},
+    RedacaoSemana: {screen:RedacaoSemana,navigationOptions:{
+        title: 'Redação da Semana'
+    }},
+    DetalhesRedacao: {screen:DetalhesRedacao,navigationOptions:{
+        drawerLabel: () => null
+    }},
+    RedacoesNaoCorrigidas: {screen:RedacoesNaoCorrigidas,navigationOptions:{
+        title: 'Redações não Corrigidas'
+    }},
+    NovaRedacao: {screen:NovaRedacao,navigationOptions:{
+        drawerLabel: () => null
+    }},
+    RedacoesFinalizadas: {screen:RedacoesFinalizadas,navigationOptions:{
+        title: 'Redações Finalizadas'
+    }},
+    PosLogin: {screen: PosLogin,navigationOptions:{
+        drawerLabel: () => null
+    }},
+    Register: {screen: Register,navigationOptions:{
+        drawerLabel: () => null
+    }},
+    Logout: {screen: Login,navigationOptions:{
+        title: 'Logout'
+    }},
+},{
+    contentComponent: Menu,
+    contentOptions: {
+        labelStyle: {
+            fontFamily:'Lato',
+            fontWeight: 'normal',
+            fontSize: 15
+        },
+        activeLabelStyle:{
+            color: '#0066CC',
+            fontWeight: 'bold',
+        }
+    }
+}); 
+ 
+export default createAppContainer(Nav);

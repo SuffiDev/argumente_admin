@@ -1,21 +1,23 @@
 import React, {Component, Fragment} from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import axios from 'axios'
-import AsyncStorage from '@react-native-community/async-storage'
 import RNFS from 'react-native-fs'
-import ModalDropdown from 'react-native-modal-dropdown'
+import Loader from './LoadSpinner'
+import SoundPlayer from 'react-native-sound-player'
+import ImageViewer from 'react-native-image-zoom-viewer'
 import {
         View,
         Text, 
+        Modal,
         StyleSheet,
-        TextInput,
         TouchableOpacity,
         Image,
-        BackHandler,
-        Alert,
-        ToastAndroid
+        Linking,
+        Dimensions,
+        ToastAndroid,
+        ImageBackground
     } from 'react-native'
-    const initialState = {screen: 'DetalheRedacao',id_redacao:'', redacao: '', resposta:'', dataCorrecao: '', abriu: true, nota: ''}
+    const initialState = {show_preview: false, caminho_imagem_android: '', playable: false, loading: false, screen: 'DetalheRedacao',id_redacao:'', redacao: '', resposta:'', dataCorrecao: '', abriu: false, nota: ''}
 export default class Register extends Component {
     state = {
         ...initialState
@@ -23,6 +25,7 @@ export default class Register extends Component {
     //Função chamada assim que a tela abre
     onLoad = async () => {
         try {
+            this.setState({loading: true})
             let idAlunoInt = this.props.navigation.getParam('id', 0)
             ToastAndroid.show('Por favor, aguarde! Isto pode demorar alguns segundos...', ToastAndroid.LONG)
             await axios.post('http://178.128.148.63:3000/getCorrecao',{                   
@@ -32,7 +35,7 @@ export default class Register extends Component {
 
                     console.log(data)
                 }).then(data => {
-                    this.setState({abriu:false})
+                    this.setState({abriu:true})
                     console.log('entrou')
                     console.log(data.data['desc'])
                     this.loadItems(data)
@@ -44,37 +47,85 @@ export default class Register extends Component {
         }
         
     }
+
+    playAudio = () => {
+        try{
+            if(this.state.playable)
+                SoundPlayer.play()
+            else
+                ToastAndroid.show('O Audio está sendo carregado! Tente novamente em alguns segundos!', ToastAndroid.LONG)
+        }catch(error){
+            console.log(error)
+        }
+    }
     //Função que seta valores para os campos assim que o resultado vem do banco
     loadItems = (data) => {
-        console.log(data.data['desc']['observacao'])
-        let randomNumber = Math.random() * (99 - 1) + 1
-        let randomName = 'imagem'+randomNumber
-        const imagePath = `${RNFS.TemporaryDirectoryPath}/${randomName}.png`
-        let dadosImg = data.data['desc']['caminho_imagem']
-        RNFS.writeFile(imagePath, dadosImg, 'base64').then(() => {
-            this.setState({
-                dataCorrecao: 'Data de correção: ' + data.data['desc']['data'], 
-                redacao: data.data['desc']['tema'], 
-                resposta:data.data['desc']['observacao'], 
-                nota:data.data['desc']['nota'], 
-                previewImg: {uri: 'file://' + imagePath }
+        try{
+            console.log(data.data['desc']['observacao'])
+            let randomNumber = Math.random() * (99 - 1) + 1
+            let randomName = 'imagem'+randomNumber
+            const imagePath = `${RNFS.TemporaryDirectoryPath}/${randomName}.png`
+            let dadosImg = data.data['desc']['caminho_imagem']
+            this.setState({caminho_imagem_android: imagePath})
+            RNFS.writeFile(imagePath, dadosImg, 'base64').then(() => {
+                this.setState({
+                    dataCorrecao: 'Data de correção: ' + data.data['desc']['data'], 
+                    redacao: data.data['desc']['tema'], 
+                    idAudio: data.data['desc']['idCorrecao'],
+                    resposta:data.data['desc']['observacao'], 
+                    nota:data.data['desc']['nota'], 
+                    previewImg: {uri: 'file://' + imagePath }
+                })
+                SoundPlayer.loadUrl(`http://178.128.148.63:3000/getAudio.aac?id=${this.state.idAudio}`)   
+                this.setState({loading:false})
             })
-        })
+
+        }catch(error){
+            console.log(error)
+            this.setState({loading: false})
+            ToastAndroid.show('Ocorreu um erro ao carregar os dados...', ToastAndroid.LONG)
+        }
     }
     componentDidMount () {
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-          this.setState({...initialState});
+            this.onLoad()
         });
+        SoundPlayer.addEventListener('FinishedLoadingURL', ({ success, url }) => {
+            this.setState({playable: true})
+            console.log('finished loading url', success, url)
+        })
+        SoundPlayer.addEventListener('FinishedPlaying', ({ success }) => {
+            console.log('finished playing', success)
+        })
+    }
+    alteraPreview = () => {
+        console.log('alterando o preview')
+        this.setState({show_preview:false})
+    }
+    abreIamgem = () => {
+        //Linking.openURL('file://'+this.state.caminho_imagem_android).catch(err => console.error("Erro ao abrir pagina : ", err))   
+        this.setState({show_preview: true})     
+        //ToastAndroid.show('Em Desenvolvimento', ToastAndroid.LONG)
     }
     render() {
-        if(this.state.abriu){
-            this.onLoad()
-        }
         return(
             <View style={styles.content} >  
+                <Modal visible={this.state.show_preview} transparent={true}>
+                    <ImageBackground style={{width:Dimensions.get('window').width, height:Dimensions.get('window').height }}source={this.state.previewImg} >
+                        <View>
+                            <View style={styles.headerModal}>
+                                <TouchableOpacity  onPress={() => {this.alteraPreview()}}>
+                                    <Icon  name="close" size={40} color='black'  /> 
+                                </TouchableOpacity>
+                            </View>                    
+                        </View>
+                    </ImageBackground>
+                </Modal>
+                <Loader
+                    loading={this.state.loading} />
                 <View style={styles.header}>
                     <View style={styles.iconHeader}>
-                        <TouchableOpacity  onPress={() => this.props.navigation.navigate('RedacoesFinalizadas')}>
+                        <TouchableOpacity  onPress={() => this.props.navigation.push('RedacoesFinalizadas')}>
                             <Icon name="arrow-left" size={30} color='#FFF'  /> 
                         </TouchableOpacity>
                     </View>
@@ -99,27 +150,23 @@ export default class Register extends Component {
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >Resposta do Professor: </Text>         
                 </View>
+                <View style={styles.content_buttons_first}> 
+                    <Text style={styles.labelButton} >Áudio dica: {this.state.contador} </Text>
+                    <TouchableOpacity  onPress={() => this.playAudio()}>
+                                <Icon name="play" size={40} color='#000'  /> 
+                    </TouchableOpacity>  
+                </View>  
                 <View style={styles.contentButtons}> 
                     <Text style={styles.labelButton} >{this.state.resposta}</Text>            
                 </View>
 
                 <View style={styles.showImagem}> 
-                    <TouchableOpacity style={{height:150}}   onPress={()=>{}}>
+                    <TouchableOpacity style={{height:150}}   onPress={()=>{this.abreIamgem()}}>
                         <Image style={{width:150, height:150}}source={this.state.previewImg} />
                     </TouchableOpacity>
                 </View>
-                <View
-                    style={{
-                        marginTop:10,
-                        borderBottomColor: 'black',
-                        borderBottomWidth: 1,
-                    }}
-                    />
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButtonFinal} >Ei, não pare por aqui! Fique atento as observações dos Professores e envie novas redações!</Text>
-                </View>
                 <View style={styles.contentSend}> 
-                    <TouchableOpacity style={styles.sendButton} onPress={() => this.props.navigation.navigate('RedacoesFinalizadas')}>
+                    <TouchableOpacity style={styles.sendButton} onPress={() => this.props.navigation.goBack(null)}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="check" size={30} color='black' />
                             <Text style={styles.textButton} >Voltar</Text>
@@ -145,7 +192,25 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         alignItems: 'center',
         justifyContent: 'center',
-        height:60
+        height:60,
+    },
+    headerModal:{ // Style do Header da Modal
+        flexDirection:"row",
+        borderRadius: 25,
+        backgroundColor: 'gray',
+        alignItems: 'center',
+        justifyContent: 'center', 
+        marginTop:10,
+        marginLeft: 10,
+        height:50,
+        width:50
+    },
+    content_buttons_first:{ // Texto dos botões que vão ficar no corpo da tela
+        marginTop: 0,      
+        flexDirection:"row",
+        alignItems: 'center',
+        height:60,
+        marginRight: 20,
     },
     iconStart:{ // Style do Icone que fica no start do Header
         justifyContent: 'flex-start',

@@ -30,15 +30,19 @@ export default class Index extends Component {
             }).then(data => {
                 let retorno = data.data
                 //if(data.data['status'] == 'erro_campos'){
-                    //Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.navigate('Perfil')},{text: 'Mais tarde', onPress: () => {}}])
+                    //Alert.alert( 'Dados de Perfil',"Complete seus dados na tela de Perfil",[{text: 'Ir para Perfil', onPress: () => this.props.navigation.push('Perfil')},{text: 'Mais tarde', onPress: () => {}}])
                 //}
             })
         } catch (error) {
         // Error saving data
         }
     }
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+          this.onLoad();
+        });
+    }
     render() {
-        {this.onLoad()}
         return(
             <View style={styles.content} >  
                 <View style={styles.header} onLoad>
@@ -80,7 +84,7 @@ export default class Index extends Component {
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('RedacoesFinalizadas')}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => {this.props.navigation.navigate('RedacoesFinalizadas')}}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="clipboard" size={30} color='black' />
                             <Text style={styles.textButton} >Redações Corrigidas</Text>
@@ -89,7 +93,7 @@ export default class Index extends Component {
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('Faleconosco')}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('FaleConosco')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="phone" size={30} color='black' />
                             <Text style={styles.textButton} >Fale Conosco</Text>
@@ -98,7 +102,7 @@ export default class Index extends Component {
                 </View>
 
                 <View style={styles.content_buttons}> 
-                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('Login')}>
+                    <TouchableOpacity style={styles.content_buttons} onPress={() => this.props.navigation.navigate('Logout')}>
                         <View style={styles.headerButton}>
                             <Icon style={styles.iconStart} name="sign-out" size={40} color='black' />
                             <Text style={styles.textButton} >Sair</Text>

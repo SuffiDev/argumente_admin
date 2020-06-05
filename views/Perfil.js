@@ -10,10 +10,11 @@ import {
         TextInput,
         TouchableOpacity,
         BackHandler,
+        ScrollView,
         Alert,
         ToastAndroid
     } from 'react-native'
-    const initialState = {screen: 'Perfil',nome:'', sobrenome: '', usuario:'', senha: '', email: '', idade:'', escolaridade: 'Selecione', cidade: '', estado: 'Selecione', abriu: true}
+    const initialState = {screen: 'Perfil',nome:'', sobrenome: '', telefone: '', usuario:'', senha: '', email: '', idade:'', escolaridade: 'Selecione', cidade: '', estado: 'Selecione', abriu: true}
 export default class Register extends Component {
     state = {
         ...initialState
@@ -56,13 +57,19 @@ export default class Register extends Component {
     //Função que seta valores para os campos assim que o resultado vem do banco
     loadItems = (data) => {
         console.log(data.data['desc'][0]['idade'])
+        let idade = '';
+        if (data.data['desc'][0]['idade'] == null)
+            idade = ''
+        else
+            idade = '' + data.data['desc'][0]['idade']
         this.setState({
             nome: this.state.nome + data.data['desc'][0]['nome'], 
             sobrenome: data.data['desc'][0]['sobrenome'], 
             usuario:data.data['desc'][0]['usuario'], 
             senha: data.data['desc'][0]['senha'], 
             email: data.data['desc'][0]['email'], 
-            idade: '' + data.data['desc'][0]['idade'], 
+            telefone: data.data['desc'][0]['telefone'], 
+            idade: idade, 
             escolaridade: data.data['desc'][0]['escolaridade'], 
             cidade: data.data['desc'][0]['cidade'], 
             estado: data.data['desc'][0]['estado']
@@ -111,7 +118,7 @@ export default class Register extends Component {
     verificaCampos = () => {
         try{
             console.log(this.state)
-            if( this.state.nome == null || this.state.sobrenome == null || this.state.usuario == null ||
+            if( this.state.nome == null || this.state.sobrenome == null || this.state.telefone == null || this.state.usuario == null ||
             this.state.senha == null || this.state.email == null || this.state.idade == null ||
             this.state.escolaridade == undefined || this.state.cidade == null || this.state.estado == undefined){
                 return false
@@ -133,85 +140,93 @@ export default class Register extends Component {
             escolaridade: this.listEscolaridades[escolaridade]
         })
     }
-    render() {
-        if(this.state.abriu){
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
             this.onLoad()
-        }
+        });
+    }
+    render() {
         return(
-            <View style={styles.content} >  
-                <View style={styles.header}>
-                    <View style={styles.iconHeader}>
-                        <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
-                            <Icon name="bars" size={30} color='#FFF'  /> 
-                        </TouchableOpacity>
-                    </View>
-                    <View >
-                        <Text style={styles.contentTextHeader} >SEU PERFIL</Text>
-                    </View>
-
-                </View>
-                <View  style={styles.paddingTop}>
-                
-                </View>
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >Nome: </Text>
-                    <TextInput controlled={true} style={styles.textContent} value={this.state.nome} placeholder="Nome" onChangeText={(nome) => this.setState({ nome })}/>  
-                </View>
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >Sobrenome: </Text>
-                    <TextInput style={styles.textContent} value={this.state.sobrenome} placeholder="Sobrenome" onChangeText={(sobrenome) => this.setState({ sobrenome })}/>  
-                </View>
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >Usuario: </Text>
-                    <TextInput style={styles.textContent} value={this.state.usuario} placeholder="Usuario" onChangeText={(usuario) => this.setState({ usuario })}/>  
-                </View>
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >Senha: </Text>
-                    <TextInput style={styles.textContent} value={this.state.senha} placeholder="Senha" onChangeText={(senha) => this.setState({ senha })}/>  
-                </View>
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >E-Mail: </Text>
-                    <TextInput style={styles.textContent} value={this.state.email} placeholder="E-Mail" onChangeText={(email) => this.setState({ email })}/>  
-                </View>
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >Idade: </Text>
-                    <TextInput style={styles.textContent} keyboardType='numeric' value={this.state.idade} placeholder="Idade"  onChangeText={(idade) => this.setState({ idade })}/>  
-                </View>
-                
-
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >Escolaridade: </Text>
-                    <ModalDropdown 
-                        style={styles.textDropDown} ref="dropEscolaridade"
-                        textStyle={styles.textDropDownText} 
-                        dropdownStyle={styles.textDropDownRow} 
-                        value={this.state.escolaridade}
-                        defaultValue={this.state.escolaridade} options={this.listEscolaridades} onSelect={(escolaridade) => this.updateEscolaridade(escolaridade)}/> 
-                </View>
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >Cidade: </Text>
-                    <TextInput style={styles.textContent} value={this.state.cidade} placeholder="Cidade" onChangeText={(cidade) => this.setState({ cidade })}/>  
-                </View>
-                <View style={styles.contentButtons}> 
-                    <Text style={styles.labelButton} >Estado: </Text>
-                    <ModalDropdown 
-                        style={styles.textDropDown} ref="dropEstado"
-                        textStyle={styles.textDropDownText} 
-                        dropdownStyle={styles.textDropDownRow} 
-                        value={this.state.estado} defaultValue={this.state.estado} options={this.listEstados} onSelect={(estado) => this.updateEstado(estado)}/> 
-                     
-                </View>
-                <View style={styles.contentSend}> 
-                    <TouchableOpacity style={styles.sendButton} onPress={this.savePerfil}>
-                        <View style={styles.headerButton}>
-                            <Icon style={styles.iconStart} name="save" size={30} color='black' />
-                            <Text style={styles.textButton} >Salvar Dados</Text>
+            <ScrollView contentContainerStyle={{ alignContent: 'center', width: '100%' }} >        
+                <View style={styles.content} >  
+                    <View style={styles.header}>
+                        <View style={styles.iconHeader}>
+                            <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
+                                <Icon name="bars" size={30} color='#FFF'  /> 
+                            </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>    
-                </View>
+                        <View >
+                            <Text style={styles.contentTextHeader} >SEU PERFIL</Text>
+                        </View>
+
+                    </View>
+                    <View  style={styles.paddingTop}>
+                    
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Nome: </Text>
+                        <TextInput controlled={true} style={styles.textContent} value={this.state.nome} placeholder="Nome" onChangeText={(nome) => this.setState({ nome })}/>  
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Sobrenome: </Text>
+                        <TextInput style={styles.textContent} value={this.state.sobrenome} placeholder="Sobrenome" onChangeText={(sobrenome) => this.setState({ sobrenome })}/>  
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Usuario: </Text>
+                        <TextInput style={styles.textContent} value={this.state.usuario} placeholder="Usuario" onChangeText={(usuario) => this.setState({ usuario })}/>  
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Senha: </Text>
+                        <TextInput style={styles.textContent} value={this.state.senha} placeholder="Senha" onChangeText={(senha) => this.setState({ senha })}/>  
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >E-Mail: </Text>
+                        <TextInput style={styles.textContent} value={this.state.email} placeholder="E-Mail" onChangeText={(email) => this.setState({ email })}/>  
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Telefone: </Text>
+                        <TextInput style={styles.textContent} keyboardType={'numeric'} value={this.state.telefone} placeholder="Telefone (Apenas numeros)" onChangeText={(telefone) => this.setState({ telefone })}/>  
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Idade: </Text>
+                        <TextInput style={styles.textContent} keyboardType='numeric' value={this.state.idade} placeholder="Idade"  onChangeText={(idade) => this.setState({ idade })}/>  
+                    </View>
+                    
+
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Escolaridade: </Text>
+                        <ModalDropdown 
+                            style={styles.textDropDown} ref="dropEscolaridade"
+                            textStyle={styles.textDropDownText} 
+                            dropdownStyle={styles.textDropDownRow} 
+                            value={this.state.escolaridade}
+                            defaultValue={this.state.escolaridade} options={this.listEscolaridades} onSelect={(escolaridade) => this.updateEscolaridade(escolaridade)}/> 
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Cidade: </Text>
+                        <TextInput style={styles.textContent} value={this.state.cidade} placeholder="Cidade" onChangeText={(cidade) => this.setState({ cidade })}/>  
+                    </View>
+                    <View style={styles.contentButtons}> 
+                        <Text style={styles.labelButton} >Estado: </Text>
+                        <ModalDropdown 
+                            style={styles.textDropDown} ref="dropEstado"
+                            textStyle={styles.textDropDownText} 
+                            dropdownStyle={styles.textDropDownRow} 
+                            value={this.state.estado} defaultValue={this.state.estado} options={this.listEstados} onSelect={(estado) => this.updateEstado(estado)}/> 
+                        
+                    </View>
+                    <View style={styles.contentSend}> 
+                        <TouchableOpacity style={styles.sendButton} onPress={this.savePerfil}>
+                            <View style={styles.headerButton}>
+                                <Icon style={styles.iconStart} name="save" size={30} color='black' />
+                                <Text style={styles.textButton} >Salvar Dados</Text>
+                            </View>
+                        </TouchableOpacity>    
+                    </View>
 
 
-            </View>        
+                </View>        
+            </ScrollView>
         )
     }
 }

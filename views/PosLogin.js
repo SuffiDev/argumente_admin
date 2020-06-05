@@ -15,7 +15,7 @@ import {
     } from 'react-native'
 import commonStyles from './commonStyles'
 import AsyncStorage from '@react-native-community/async-storage'
-const initialState = {delayTime: 3000, splashImage: require('../assets/imgs/icon_no_photo.png'), abriu: false}
+const initialState = {delayTime: 3000, splashImage:'', abriu: false}
 export default class Login extends Component {
     state = {
         ...initialState
@@ -36,15 +36,17 @@ export default class Login extends Component {
             }, this.state.delayTime)            
         })
     }
-    //Função do login
-    componentDidMount = () => {
-        this.onLoad()
+    //Função do login    
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+          this.onLoad()
+        });
     }
     render() {
         return(
             <View  style={styles.imageLogin}>
                 <Text style={styles.logo} >
-                        BEM-VINDO ALUNO!
+                        BEM-VINDO, ALUNO!
                     </Text>
                 <Text style={styles.subLogo} >
                         SUA SESSÃO É PATROCINADA POR:

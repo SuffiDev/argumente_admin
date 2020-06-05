@@ -27,9 +27,7 @@ function Item({ title, id, navigate }) {
             alignItems: 'center',
             justifyContent: 'center',
             height: 40
-        }}onPress={() => Alert.alert( 'Redação','O que deseja fazer?',[
-            {text: 'Visualizar correção', onPress: () => navigate.editarRedacao(id)},
-            {text: 'Excluir', onPress:() => navigate.excluirRedacao(id)}])}>
+        }}onPress={() => navigate.editarRedacao(id)}>
                 <Icon style={styles.iconStart} name="check" size={30} color='black' />
                 <Text style={{
                     color: 'black',
@@ -73,9 +71,8 @@ export default class Register extends Component {
             this.atualizaStatus()
             const idAluno = await AsyncStorage.getItem('@idAluno')
             let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-            await axios.post('http://178.128.148.63:3000/get_redacao',{                   
+            await axios.post('http://178.128.148.63:3000/get_temas_finalizados',{                   
                     idAluno: idAlunoInt,              
-                    tipoRedacao: 'finalizada'
                 }, (err, data) => {
                     console.log(err)
                     console.log(data)
@@ -85,7 +82,7 @@ export default class Register extends Component {
                     console.log(data.data['desc'])
                     for(let i =0; i< data.data['desc'].length; i++){
                         currentItem = data.data['desc'][i]
-                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema'] + ' - ' + currentItem['data']})
+                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema'] + ' - ' + currentItem['semana']})
                     }
                     console.log(JSON.stringify(listItems))
                     this.setState({registros:listItems})
@@ -96,11 +93,12 @@ export default class Register extends Component {
         // Error saving data
         }
     }
-    
-    render() {
-        if(this.state.abriu){
+    componentDidMount () {
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
             this.getRedacoes()
-        }
+        });
+    }    
+    render() {
         return(
             <View style={styles.content} >  
                 <View style={styles.header}>
@@ -110,7 +108,7 @@ export default class Register extends Component {
                         </TouchableOpacity>
                     </View>
                     <View >
-                        <Text style={styles.contentTextHeader} >REDAÇÕES FINALIZADAS</Text>
+                        <Text style={styles.contentTextHeader} >REDAÇÕES CORRIGIDAS</Text>
                     </View>
 
                 </View>

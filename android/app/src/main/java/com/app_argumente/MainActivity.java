@@ -8,7 +8,7 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactInstanceManager;
 
 public class MainActivity extends ReactActivity {
-  private ReactInstanceManager mReactInstanceManager;
+  //private ReactInstanceManager mReactInstanceManager;
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
@@ -27,12 +27,12 @@ public class MainActivity extends ReactActivity {
       }
     };
   }
-  @Override
-  public void onBackPressed() {
-      if (mReactInstanceManager != null) {
-          mReactInstanceManager.onBackPressed();
-      } else {
-          super.onBackPressed();
-      }
-  }
+  //@Override
+  //public void onBackPressed() {
+  //    if (mReactInstanceManager != null) {
+  //        mReactInstanceManager.onBackPressed();
+  //    } else {
+  //        super.onBackPressed();
+  //    }
+  //}
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { ScrollView, View, Text, StyleSheet, Image } from 'react-native'
+import { ScrollView, View, StyleSheet, Image } from 'react-native'
 import { DrawerItems } from 'react-navigation-drawer'
 
 export default props => {
