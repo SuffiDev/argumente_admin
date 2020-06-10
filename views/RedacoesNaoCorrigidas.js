@@ -90,7 +90,7 @@ export default class Register extends Component {
                     console.log(data.data['desc'])
                     for(let i =0; i< data.data['desc'].length; i++){
                         currentItem = data.data['desc'][i]
-                        listItems.push({id: currentItem['id'], title: ' Semana ' + currentItem['semana']})
+                        listItems.push({id: currentItem['id'], title: ' Semana ' + currentItem['semana'] + ' - ' + currentItem['tema']})
                     }
                     console.log(JSON.stringify(listItems))
                     this.setState({registros:listItems})

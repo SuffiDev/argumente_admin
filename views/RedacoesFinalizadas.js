@@ -69,10 +69,9 @@ export default class Register extends Component {
     getRedacoes = async () => {
         try {
             this.atualizaStatus()
-            const idAluno = await AsyncStorage.getItem('@idAluno')
-            let idAlunoInt = parseInt( idAluno.replace(/^"|"$/g, ""))
-            await axios.post('http://178.128.148.63:3000/get_temas_finalizados',{                   
-                    idAluno: idAlunoInt,              
+            let idTema = this.props.navigation.getParam('id', 0)
+            await axios.post('http://178.128.148.63:3000/get_redacao_tema',{                   
+                    id: idTema,              
                 }, (err, data) => {
                     console.log(err)
                     console.log(data)
@@ -82,7 +81,13 @@ export default class Register extends Component {
                     console.log(data.data['desc'])
                     for(let i =0; i< data.data['desc'].length; i++){
                         currentItem = data.data['desc'][i]
-                        listItems.push({id: currentItem['idRedacao'], title: currentItem['tema'] + ' - ' + currentItem['semana']})
+                        try{
+                            listItems.push({id: currentItem['id'], title: 'Redação ' + currentItem['numeroRedacao'] + ' - '  + currentItem['data_criacao']})
+
+                        }catch(error){
+                            listItems.push({id: currentItem['id'], title: 'Redação ' + currentItem['numeroRedacao'] + ' - ' + currentItem['data_cricao']})
+
+                        }
                     }
                     console.log(JSON.stringify(listItems))
                     this.setState({registros:listItems})

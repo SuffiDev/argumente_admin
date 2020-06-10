@@ -16,6 +16,7 @@ import DetalhesRedacao from './views/DetalhesRedacao'
 import NovaRedacao from './views/NovaRedacao'
 import PosLogin from './views/PosLogin'
 import Menu from './views/Menu'
+import TemasCorrigidos from './views/TemasCorrigidos'
 
 const menuConfig ={
     contentComponent: Menu,
@@ -39,6 +40,7 @@ const AppNavigator = createStackNavigator({
     FaleConosco: {screen: Faleconosco, navigationOptions: { header: null }},
     Perfil: {screen: Perfil, navigationOptions: { header: null }},
     RedacaoSemana: {screen: RedacaoSemana, navigationOptions: { header: null }},
+    TemasCorrigidos: {screen: TemasCorrigidos, navigationOptions: { header: null }},
     RedacoesFinalizadas: {screen: RedacoesFinalizadas, navigationOptions: { header: null }},
     RedacoesNaoCorrigidas: {screen: RedacoesNaoCorrigidas, navigationOptions: { header: null }},
     DetalhesRedacao: {screen: DetalhesRedacao, navigationOptions: { header: null }},
@@ -69,6 +71,9 @@ const Nav = createDrawerNavigator({
     }},
     NovaRedacao: {screen:NovaRedacao,navigationOptions:{
         drawerLabel: () => null
+    }},
+    TemasCorrigidos: {screen:TemasCorrigidos,navigationOptions:{
+        title: 'Redações Finalizadas'
     }},
     RedacoesFinalizadas: {screen:RedacoesFinalizadas,navigationOptions:{
         title: 'Redações Finalizadas'

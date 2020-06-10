@@ -69,7 +69,11 @@ export default class Register extends Component {
                     this.setState({abriu:true, loading: false})
                     console.log('entrou')
                     console.log(data.data['desc'])
-                    if(data.data['desc'].length == 0){
+                    if(data.data['status'] == 'limit_redacao'){
+                        this.setState({achouTema:false})
+                        Alert.alert( 'Redação','Você Atingiu a quantidade máxima de redações com este tema atual!',[{text: 'Voltar', onPress: () => this.props.navigation.navigate("Index")}])
+                    }
+                    else if(data.data['desc'].length == 0){
                         this.setState({achouTema:false})
                         Alert.alert( 'Redação','Não foi possível encontrar nenhum Tema. Tente novamente mais tarde ou no proximo Dia',[{text: 'Voltar', onPress: () => this.props.navigation.navigate("Index")}])
                     }else{

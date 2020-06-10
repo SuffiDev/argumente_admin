@@ -14,7 +14,7 @@ import {
         ToastAndroid,
         TouchableOpacity
     } from 'react-native'
-const initialState = {screen: 'Register',index:true, nome:'', sobrenome: '', telefone: '', usuario:'', senha: '', email: '', codigoAcesso: '', idade:'', escolaridade: '', cidade: '', estado: ''}
+const initialState = {screen: 'Register',index:true, nome:'', sobrenome: '', telefone: '', usuario:'', senha: '', email: '', codigoAcesso: '', idade:'', cidade: '', estado: ''}
 export default class Login extends Component {
     state = {
         ...initialState
@@ -44,7 +44,6 @@ export default class Login extends Component {
                     senha: jsonEnvio.senha,
                     email: jsonEnvio.email,
                     codigoAcesso: jsonEnvio.codigoAcesso,
-                    escolaridade: jsonEnvio.escolaridade,
                     cidade: jsonEnvio.cidade,
                     estado: jsonEnvio.estado,
                 }, (err, data) => {

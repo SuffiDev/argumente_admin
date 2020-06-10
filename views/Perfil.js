@@ -14,19 +14,11 @@ import {
         Alert,
         ToastAndroid
     } from 'react-native'
-    const initialState = {screen: 'Perfil',nome:'', sobrenome: '', telefone: '', usuario:'', senha: '', email: '', idade:'', escolaridade: 'Selecione', cidade: '', estado: 'Selecione', abriu: true}
+    const initialState = {screen: 'Perfil',nome:'', sobrenome: '', telefone: '', usuario:'', senha: '', email: '', idade:'', cidade: '', estado: 'Selecione', abriu: true}
 export default class Register extends Component {
     state = {
         ...initialState
     }
-    listEscolaridades = [
-        'Fundamental Completo',
-        'Fundamental Incompleto',
-        'Ensino Médio Completo',
-        'Ensino Médio Incompleto',
-        'Ensino Superior Completo',
-        'Ensino Superior Incompleto'
-    ]
     listEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"]
     //Função chamada assim que a tela abre
     onLoad = async () => {
@@ -70,7 +62,6 @@ export default class Register extends Component {
             email: data.data['desc'][0]['email'], 
             telefone: data.data['desc'][0]['telefone'], 
             idade: idade, 
-            escolaridade: data.data['desc'][0]['escolaridade'], 
             cidade: data.data['desc'][0]['cidade'], 
             estado: data.data['desc'][0]['estado']
         })
@@ -92,7 +83,6 @@ export default class Register extends Component {
                     senha: this.state.senha,
                     email: this.state.email,
                     idade: this.state.idade,
-                    escolaridade: this.state.escolaridade,
                     cidade: this.state.cidade,
                     estado: this.state.estado
                 }, (err, data) => {
@@ -120,7 +110,7 @@ export default class Register extends Component {
             console.log(this.state)
             if( this.state.nome == null || this.state.sobrenome == null || this.state.telefone == null || this.state.usuario == null ||
             this.state.senha == null || this.state.email == null || this.state.idade == null ||
-            this.state.escolaridade == undefined || this.state.cidade == null || this.state.estado == undefined){
+            this.state.cidade == null || this.state.estado == undefined){
                 return false
             }else{
                 return true
@@ -133,11 +123,6 @@ export default class Register extends Component {
     updateEstado(estado) {
         this.setState({
             estado: this.listEstados[estado]
-        })
-    }
-    updateEscolaridade(escolaridade) {
-        this.setState({
-            escolaridade: this.listEscolaridades[escolaridade]
         })
     }
     componentDidMount () {
@@ -190,17 +175,6 @@ export default class Register extends Component {
                     <View style={styles.contentButtons}> 
                         <Text style={styles.labelButton} >Idade: </Text>
                         <TextInput style={styles.textContent} keyboardType='numeric' value={this.state.idade} placeholder="Idade"  onChangeText={(idade) => this.setState({ idade })}/>  
-                    </View>
-                    
-
-                    <View style={styles.contentButtons}> 
-                        <Text style={styles.labelButton} >Escolaridade: </Text>
-                        <ModalDropdown 
-                            style={styles.textDropDown} ref="dropEscolaridade"
-                            textStyle={styles.textDropDownText} 
-                            dropdownStyle={styles.textDropDownRow} 
-                            value={this.state.escolaridade}
-                            defaultValue={this.state.escolaridade} options={this.listEscolaridades} onSelect={(escolaridade) => this.updateEscolaridade(escolaridade)}/> 
                     </View>
                     <View style={styles.contentButtons}> 
                         <Text style={styles.labelButton} >Cidade: </Text>

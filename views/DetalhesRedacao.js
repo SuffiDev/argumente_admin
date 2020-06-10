@@ -4,7 +4,7 @@ import axios from 'axios'
 import RNFS from 'react-native-fs'
 import Loader from './LoadSpinner'
 import SoundPlayer from 'react-native-sound-player'
-import ImageViewer from 'react-native-image-zoom-viewer'
+import ImageZoom from 'react-native-image-pan-zoom'
 import {
         View,
         Text, 
@@ -68,16 +68,24 @@ export default class Register extends Component {
             let dadosImg = data.data['desc']['caminho_imagem']
             this.setState({caminho_imagem_android: imagePath})
             RNFS.writeFile(imagePath, dadosImg, 'base64').then(() => {
-                this.setState({
-                    dataCorrecao: 'Data de correção: ' + data.data['desc']['data'], 
-                    redacao: data.data['desc']['tema'], 
-                    idAudio: data.data['desc']['idCorrecao'],
-                    resposta:data.data['desc']['observacao'], 
-                    nota:data.data['desc']['nota'], 
-                    previewImg: {uri: 'file://' + imagePath }
-                })
-                SoundPlayer.loadUrl(`http://178.128.148.63:3000/getAudio.aac?id=${this.state.idAudio}`)   
-                this.setState({loading:false})
+                try{
+                    this.setState({
+                        dataCorrecao: 'Data da Redação: ' + data.data['desc']['data'], 
+                        redacao: data.data['desc']['tema'], 
+                        idAudio: data.data['desc']['idCorrecao'],
+                        resposta:data.data['desc']['observacao'], 
+                        nota:data.data['desc']['nota'], 
+                        previewImg: {uri: 'file://' + imagePath }
+                    })
+                    SoundPlayer.loadUrl(`http://178.128.148.63:3000/getAudio.aac?id=${this.state.idAudio}`)   
+                    this.setState({loading:false})
+
+                }catch(error){
+                    console.log(error)
+                    this.setState({loading: false})
+                    ToastAndroid.show('Ocorreu um erro ao carregar os dados...', ToastAndroid.LONG)
+
+                }
             })
 
         }catch(error){
@@ -110,8 +118,8 @@ export default class Register extends Component {
     render() {
         return(
             <View style={styles.content} >  
-                <Modal visible={this.state.show_preview} transparent={true}>
-                    <ImageBackground style={{width:Dimensions.get('window').width, height:Dimensions.get('window').height }}source={this.state.previewImg} >
+                <Modal visible={this.state.show_preview} style={{backgroundColor: 'black'}} transparent={false}>
+                    <ImageBackground resizeMode={'contain'} style={{width:Dimensions.get('window').width, height:Dimensions.get('window').height }}source={this.state.previewImg} >
                         <View>
                             <View style={styles.headerModal}>
                                 <TouchableOpacity  onPress={() => {this.alteraPreview()}}>
@@ -125,8 +133,8 @@ export default class Register extends Component {
                     loading={this.state.loading} />
                 <View style={styles.header}>
                     <View style={styles.iconHeader}>
-                        <TouchableOpacity  onPress={() => this.props.navigation.push('RedacoesFinalizadas')}>
-                            <Icon name="arrow-left" size={30} color='#FFF'  /> 
+                        <TouchableOpacity  onPress={() => this.props.navigation.openDrawer()}>
+                            <Icon name="bars" size={30} color='#FFF'  /> 
                         </TouchableOpacity>
                     </View>
                     <View >      
